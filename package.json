@@ -1,0 +1,27 @@
+{
+  "name": "ThunderEgg",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.1.0",
+    "@openzeppelin/test-helpers": "^0.5.6",
+    "chai": "^4.2.0",
+    "ethers": "^5.0.15",
+    "prompt-sync": "^4.2.0",
+    "truffle": "^5.1.41",
+    "truffle-flattener": "^1.4.4"
+  },
+  "devDependencies": {
+    "@nomiclabs/buidler": "^1.4.7",
+    "@nomiclabs/buidler-ethers": "^2.0.0",
+    "@nomiclabs/buidler-solhint": "^1.3.3",
+    "@nomiclabs/buidler-truffle5": "^1.3.4",
+    "@nomiclabs/buidler-waffle": "^2.1.0",
+    "@nomiclabs/buidler-web3": "^1.3.4",
+    "buidler-gas-reporter": "^0.1.3",
+    "dotenv": "^8.2.0",
+    "ethereum-waffle": "^3.1.0",
+    "solidity-coverage": "^0.7.10"
+  }
+}
