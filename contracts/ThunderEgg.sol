@@ -99,6 +99,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
 
     // Mapping of tokenId => owner
     mapping(uint256 => address) internal thunderEggIdToOwner;
+    mapping(uint256 => uint256) internal thunderEggIdToBirth;
     mapping(address => uint256) internal ownerToThunderEggId;
 
     // Mapping of tokenId => approved address
@@ -167,10 +168,29 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         }
     }
 
+    function thunderEggStats(uint256 _pid, uint256 _tokenId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _nrg) {
+        address owner = thunderEggIdToOwner[_tokenId];
+        require(owner != address(0), "No ThunderEgg!");
+
+        UserInfo memory user = userInfo[_pid][owner];
+
+        return (owner, thunderEggIdToBirth[_tokenId], user.amount, _calculatePendingNRG(_pid, owner));
+    }
+
     // View function to see pending SUSHIs on frontend.
     function pendingNRG(uint256 _pid, address _user) external view returns (uint256) {
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][_user];
+        // no ThunderEgg, no NRG!
+        if (ownerToThunderEggId[_user] == 0) {
+            return 0;
+        }
+
+        return _calculatePendingNRG(_pid, _user);
+    }
+
+
+    function _calculatePendingNRG(uint256 _pid, address _user) internal view returns (uint256) {
+        PoolInfo memory pool = poolInfo[_pid];
+        UserInfo memory user = userInfo[_pid][_user];
         uint256 accNRGPerShare = pool.accNRGPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
@@ -256,7 +276,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         user.rewardDebt = user.amount.mul(pool.accNRGPerShare).div(1e18);
         emit Withdraw(msg.sender, _pid, user.amount);
     }
-    
+
     // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
     function safeNrgTransfer(address _to, uint256 _amount) internal {
         uint256 nrgBal = nrg.balanceOf(address(this));
@@ -325,6 +345,9 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         // Mint
         thunderEggIdToOwner[tokenId] = _to;
         ownerToThunderEggId[msg.sender] = tokenId;
+
+        // birth
+        thunderEggIdToBirth[tokenId] = block.number;
 
         // MetaData
         totalSupply = totalSupply.add(1);
