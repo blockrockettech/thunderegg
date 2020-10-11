@@ -14,26 +14,15 @@ import "./interfaces/IERC721Receiver.sol";
 
 import "./NRGToken.sol";
 
+import "./libs/Strings.sol"; // FIXME use lib properly
 
-interface IMigratorChef {
-    // Perform LP token migration from legacy UniswapV2 to SushiSwap.
-    // Take the current LP token address and return the new LP token address.
-    // Migrator should have full access to the caller's LP token.
-    // Return the new LP token address.
-    //
-    // XXX Migrator must have allowance access to UniswapV2 LP tokens.
-    // SushiSwap must mint EXACTLY the same amount of SushiSwap LP tokens or
-    // else something bad will happen. Traditional UniswapV2 does not
-    // do that so be careful!
-    function migrate(IERC20 token) external returns (IERC20);
-}
 
-// SacredGrove is the fertile soil of THOR and produces ThunderEggs with $NRG
+// In the fertile SacredGrove ThunderEggs born and grow with tremendous $NRG
 //
 // Note that it's ownable and the owner wields tremendous power.
 //
 // Don't mess with the Gods especially the God of Thunder!
-contract SacredGrove is Ownable, IERC721Token, ERC165 {
+contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -44,8 +33,7 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
         uint256 amount;     // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of SUSHIs
-        // entitled to a user but is pending to be distributed is:
+        // We do some fancy math here. Basically, any point in time, the amount of NRG entitled to a user but is pending to be distributed is:
         //
         //   pending reward = (user.amount * pool.accNRGPerShare) - user.rewardDebt
         //
@@ -66,17 +54,12 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
 
     // The NRGToken TOKEN!
     NRGToken public nrg;
-    // Dev address.
-    address public devaddr;
     // Block number when bonus period ends.
     uint256 public bonusEndBlock;
     // NRG tokens created per block.
     uint256 public nrgPerBlock;
     // Bonus muliplier for early makers.
     uint256 public constant BONUS_MULTIPLIER = 10;
-    // The migrator contract. It has a lot of power. Can only be set through governance (owner).
-    IMigratorChef public migrator;
-
     // Info of each pool.
     PoolInfo[] public poolInfo;
     // Info of each user that stakes LP tokens.
@@ -101,6 +84,8 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
     // 0x150b7a02
     bytes4 constant internal ERC721_RECEIVED = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
 
+    string public baseTokenURI;
+
     // Note: the first token ID will be 1
     uint256 public tokenPointer;
 
@@ -113,31 +98,24 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
     uint256 public totalSupply;
 
     // Mapping of tokenId => owner
-    mapping(uint256 => address) internal owners;
+    mapping(uint256 => address) internal thunderEggIdToOwner;
+    mapping(address => uint256) internal ownerToThunderEggId;
 
     // Mapping of tokenId => approved address
     mapping(uint256 => address) internal approvals;
 
-    // Mapping of owner => number of tokens owned
-    mapping(address => uint256) internal balances;
-
     // Mapping of owner => operator => approved
     mapping(address => mapping(address => bool)) internal operatorApprovals;
-
-    // Optional mapping for token URIs
-    mapping(uint256 => string) internal tokenURIs;
 
     // ** end ERC721
 
     constructor(
         NRGToken _nrg,
-        address _devaddr,
         uint256 _nrgPerBlock,
         uint256 _startBlock,
         uint256 _bonusEndBlock
     ) public {
         nrg = _nrg;
-        devaddr = _devaddr;
         nrgPerBlock = _nrgPerBlock;
         bonusEndBlock = _bonusEndBlock;
         startBlock = _startBlock;
@@ -175,22 +153,6 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
         poolInfo[_pid].allocPoint = _allocPoint;
     }
 
-    // Set the migrator contract. Can only be called by the owner.
-    function setMigrator(IMigratorChef _migrator) public onlyOwner {
-        migrator = _migrator;
-    }
-
-    // Migrate lp token to another lp contract. Can be called by anyone. We trust that migrator contract is good.
-    function migrate(uint256 _pid) public {
-        require(address(migrator) != address(0), "migrate: no migrator");
-        PoolInfo storage pool = poolInfo[_pid];
-        IERC20 lpToken = pool.lpToken;
-        uint256 bal = lpToken.balanceOf(address(this));
-        lpToken.safeApprove(address(migrator), bal);
-        IERC20 newLpToken = migrator.migrate(lpToken);
-        require(bal == newLpToken.balanceOf(address(this)), "migrate: bad");
-        pool.lpToken = newLpToken;
-    }
 
     // Return reward multiplier over the given _from to _to block.
     function getMultiplier(uint256 _from, uint256 _to) public view returns (uint256) {
@@ -213,8 +175,8 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 sushiReward = multiplier.mul(nrgPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accNRGPerShare = accNRGPerShare.add(sushiReward.mul(1e12).div(lpSupply));
+            uint256 nrgReward = multiplier.mul(nrgPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            accNRGPerShare = accNRGPerShare.add(nrgReward.mul(1e12).div(lpSupply));
         }
         return user.amount.mul(accNRGPerShare).div(1e12).sub(user.rewardDebt);
     }
@@ -233,80 +195,76 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
         if (block.number <= pool.lastRewardBlock) {
             return;
         }
+
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
             return;
         }
+
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 sushiReward = multiplier.mul(nrgPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        nrg.mint(devaddr, sushiReward.div(10));
-        nrg.mint(address(this), sushiReward);
-        pool.accNRGPerShare = pool.accNRGPerShare.add(sushiReward.mul(1e12).div(lpSupply));
+        uint256 nrgReward = multiplier.mul(nrgPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+
+        nrg.mint(address(this), nrgReward);
+
+        pool.accNRGPerShare = pool.accNRGPerShare.add(nrgReward.mul(1e18).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit LP tokens to MasterChef for SUSHI allocation.
+    // Deposit LP tokens, mint the ThunderEgg and set allocations...
     function deposit(uint256 _pid, uint256 _amount) public {
+        require(ownerToThunderEggId[msg.sender] == 0, "Thor has already blessed you with a ThunderEgg!");
+
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
+
         updatePool(_pid);
-        if (user.amount > 0) {
-            uint256 pending = user.amount.mul(pool.accNRGPerShare).div(1e12).sub(user.rewardDebt);
-            if (pending > 0) {
-                safeSushiTransfer(msg.sender, pending);
-            }
-        }
+
+        // credit the staked amount
         if (_amount > 0) {
             pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
             user.amount = user.amount.add(_amount);
         }
-        user.rewardDebt = user.amount.mul(pool.accNRGPerShare).div(1e12);
+
+        // Thunder 🥚 time!
+        _mint(msg.sender);
+
+        user.rewardDebt = user.amount.mul(pool.accNRGPerShare).div(1e18);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
     // Withdraw LP tokens from MasterChef.
-    function withdraw(uint256 _pid, uint256 _amount) public {
+    function withdraw(uint256 _pid) public {
+        require(ownerToThunderEggId[msg.sender] != 0, "No ThunderEgg!");
+
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
-        require(user.amount >= _amount, "withdraw: not good");
+
         updatePool(_pid);
-        uint256 pending = user.amount.mul(pool.accNRGPerShare).div(1e12).sub(user.rewardDebt);
+
+        // burn the token - send all rewards and LP back!
+        _burn(ownerToThunderEggId[msg.sender]);
+
+        uint256 pending = user.amount.mul(pool.accNRGPerShare).div(1e18).sub(user.rewardDebt);
         if (pending > 0) {
-            safeSushiTransfer(msg.sender, pending);
+            safeNrgTransfer(msg.sender, pending);
         }
-        if (_amount > 0) {
-            user.amount = user.amount.sub(_amount);
-            pool.lpToken.safeTransfer(address(msg.sender), _amount);
-        }
-        user.rewardDebt = user.amount.mul(pool.accNRGPerShare).div(1e12);
-        emit Withdraw(msg.sender, _pid, _amount);
-    }
 
-    // Withdraw without caring about rewards. EMERGENCY ONLY.
-    function emergencyWithdraw(uint256 _pid) public {
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][msg.sender];
+        // send all LP back...
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
-        emit EmergencyWithdraw(msg.sender, _pid, user.amount);
-        user.amount = 0;
-        user.rewardDebt = 0;
-    }
 
+        user.rewardDebt = user.amount.mul(pool.accNRGPerShare).div(1e18);
+        emit Withdraw(msg.sender, _pid, user.amount);
+    }
+    
     // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
-    function safeSushiTransfer(address _to, uint256 _amount) internal {
-        uint256 sushiBal = nrg.balanceOf(address(this));
-        if (_amount > sushiBal) {
-            nrg.transfer(_to, sushiBal);
+    function safeNrgTransfer(address _to, uint256 _amount) internal {
+        uint256 nrgBal = nrg.balanceOf(address(this));
+        if (_amount > nrgBal) {
+            nrg.transfer(_to, nrgBal);
         } else {
             nrg.transfer(_to, _amount);
         }
-    }
-
-    // Update dev address by the previous dev.
-    function dev(address _devaddr) public {
-        require(msg.sender == devaddr, "dev: wut?");
-        devaddr = _devaddr;
     }
 
     // *** ERC721 functions below
@@ -352,26 +310,23 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
         }
     }
 
-    function setTokenURI(uint256 _tokenId, string calldata _uri) external {
-        require(owners[_tokenId] != address(0), "EphimeraToken.setTokenURI: token does not exist.");
-        tokenURIs[_tokenId] = _uri;
+    function setBaseTokenURI(string calldata _uri) external onlyOwner {
+        baseTokenURI = _uri;
     }
 
-    function mint(
-        address _to,
-        string calldata _uri
-    ) external returns (uint256) {
+    function _mint(
+        address _to
+    ) internal returns (uint256) {
         require(_to != address(0), "ERC721: mint to the zero address");
 
         tokenPointer = tokenPointer.add(1);
         uint256 tokenId = tokenPointer;
 
         // Mint
-        owners[tokenId] = _to;
-        balances[_to] = balances[_to].add(1);
+        thunderEggIdToOwner[tokenId] = _to;
+        ownerToThunderEggId[msg.sender] = tokenId;
 
         // MetaData
-        tokenURIs[tokenId] = _uri;
         totalSupply = totalSupply.add(1);
 
         // Single Transfer event for a single token
@@ -380,36 +335,34 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
         return tokenId;
     }
 
-    function tokenURI(uint256 _tokenId) external view returns (string memory) {
-        return tokenURIs[_tokenId];
-    }
-
     function exists(uint256 _tokenId) external view returns (bool) {
-        address owner = owners[_tokenId];
-        return owner != address(0);
+        return thunderEggIdToOwner[_tokenId] != address(0);
     }
 
-    function burn(uint256 _tokenId) external {
-        _burn(_tokenId);
+    function tokenURI(uint256 _tokenId) external view returns (string memory) {
+        require(thunderEggIdToOwner[_tokenId] != address(0), "must exist");
+        return Strings.strConcat(baseTokenURI, Strings.uint2str(_tokenId));
     }
 
     function _burn(uint256 _tokenId)
     internal
     {
-        address owner = owners[_tokenId];
+        address owner = thunderEggIdToOwner[_tokenId];
+
+        require(
+            owner == msg.sender,
+            "Must own the egg!"
+        );
+
         require(
             owner != address(0),
             "ERC721_ZERO_OWNER_ADDRESS"
         );
 
-        owners[_tokenId] = address(0);
-        balances[owner] = balances[owner].sub(1);
-        totalSupply = totalSupply.sub(1);
+        thunderEggIdToOwner[_tokenId] = address(0);
+        ownerToThunderEggId[msg.sender] = 0;
 
-        // clear metadata
-        if (bytes(tokenURIs[_tokenId]).length != 0) {
-            delete tokenURIs[_tokenId];
-        }
+        totalSupply = totalSupply.sub(1);
 
         emit Transfer(
             owner,
@@ -514,7 +467,7 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
             _owner != address(0),
             "ERC721: owner query for nonexistent token"
         );
-        return balances[_owner];
+        return ownerToThunderEggId[_owner] != 0 ? 1 : 0;
     }
 
     /// @notice Transfer ownership of an NFT -- THE CALLER IS RESPONSIBLE
@@ -559,9 +512,9 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
             approvals[_tokenId] = address(0);
         }
 
-        owners[_tokenId] = _to;
-        balances[_from] = balances[_from].sub(1);
-        balances[_to] = balances[_to].add(1);
+        thunderEggIdToOwner[_tokenId] = _to;
+        ownerToThunderEggId[_from] = 0;
+        ownerToThunderEggId[_to] = _tokenId;
 
         emit Transfer(
             _from,
@@ -581,7 +534,7 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
     view
     returns (address)
     {
-        address owner = owners[_tokenId];
+        address owner = thunderEggIdToOwner[_tokenId];
         require(
             owner != address(0),
             "ERC721: owner query for nonexistent token"
@@ -599,7 +552,7 @@ contract SacredGrove is Ownable, IERC721Token, ERC165 {
     view
     returns (address)
     {
-        require(owners[_tokenId] != address(0), "ERC721: approved query for nonexistent token");
+        require(thunderEggIdToOwner[_tokenId] != address(0), "ERC721: approved query for nonexistent token");
         return approvals[_tokenId];
     }
 
