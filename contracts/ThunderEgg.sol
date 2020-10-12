@@ -49,7 +49,9 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         IERC20 lpToken;           // Address of LP token contract.
         uint256 allocPoint;       // How many allocation points assigned to this pool. lavas to distribute per block.
         uint256 lastRewardBlock;  // Last block number that lavas distribution occurs.
-        uint256 accLavaPerShare; // Accumulated lava per share, times 1e12. See below.
+        uint256 accLavaPerShare; // Accumulated lava per share, times 1e18. See below.
+        uint256 totalSupply; // max ThunderEggs for this pool
+        uint256 maxSupply; // max ThunderEggs for this pool
     }
 
     // The lavaToken TOKEN!
@@ -102,8 +104,6 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     // Token symbol
     string public symbol = "TEGG";
 
-    uint256 public totalSupply;
-
     // Mapping of tokenId => owner
     mapping(uint256 => address) internal thunderEggIdToOwner;
     mapping(uint256 => uint256) internal thunderEggIdToBirth;
@@ -149,7 +149,9 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
             lpToken : _lpToken,
             allocPoint : _allocPoint,
             lastRewardBlock : lastRewardBlock,
-            accLavaPerShare : 0
+            accLavaPerShare : 0,
+            totalSupply: 0,
+            maxSupply: 999
             }));
     }
 
@@ -183,21 +185,21 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
 
         ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
 
-        return (thunderEggIdToOwner[_tokenId], thunderEggIdToBirth[_tokenId], info.amount, _calculatePendinglava(_pid, _tokenId));
+        return (thunderEggIdToOwner[_tokenId], thunderEggIdToBirth[_tokenId], info.amount, _calculatePendingLava(_pid, _tokenId));
     }
 
     // View function to see pending SUSHIs on frontend.
-    function pendinglava(uint256 _pid, uint256 _tokenId) external view returns (uint256) {
+    function pendingLava(uint256 _pid, uint256 _tokenId) external view returns (uint256) {
         // no ThunderEgg, no lava!
         if (!_exists(_tokenId)) {
             return 0;
         }
 
-        return _calculatePendinglava(_pid, _tokenId);
+        return _calculatePendingLava(_pid, _tokenId);
     }
 
 
-    function _calculatePendinglava(uint256 _pid, uint256 _tokenId) internal view returns (uint256) {
+    function _calculatePendingLava(uint256 _pid, uint256 _tokenId) internal view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
 
@@ -249,7 +251,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         updatePool(_pid);
 
         // Thunder 🥚 time!
-        uint256 tokenId = _mint(msg.sender, _name);
+        uint256 tokenId = _mint(_pid, msg.sender, _name);
 
         PoolInfo storage pool = poolInfo[_pid];
         ThunderEggInfo storage info = thunderEggInfoMapping[_pid][tokenId];
@@ -276,12 +278,12 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         ThunderEggInfo storage info = thunderEggInfoMapping[_pid][tokenId];
 
         // burn the token - send all rewards and LP back!
-        _burn(tokenId);
+        _burn(_pid, tokenId);
 
         // pay out rewards from the ThunderEgg
         uint256 pending = info.amount.mul(pool.accLavaPerShare).div(1e18).sub(info.rewardDebt);
         if (pending > 0) {
-            safelavaTransfer(msg.sender, pending);
+            safeLavaTransfer(msg.sender, pending);
         }
 
         // send all LP back...
@@ -292,7 +294,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     }
 
     // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
-    function safelavaTransfer(address _to, uint256 _amount) internal {
+    function safeLavaTransfer(address _to, uint256 _amount) internal {
         uint256 lavaBal = lava.balanceOf(address(this));
         if (_amount > lavaBal) {
             lava.transfer(_to, lavaBal);
@@ -314,9 +316,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         return (codehash != accountHash && codehash != 0x0);
     }
 
-    function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data)
-    private returns (bool)
-    {
+    function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory _data) private returns (bool) {
         if (!isContract(to)) {
             return true;
         }
@@ -355,11 +355,11 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         thunderEggIdToName[_tokenId] = _name;
     }
 
-    function _mint(
-        address _to,
-        bytes32 _name
-    ) internal returns (uint256) {
+    function _mint(uint256 _pid, address _to, bytes32 _name) internal returns (uint256) {
         require(_to != address(0), "ERC721: mint to the zero address");
+
+        PoolInfo storage pool = poolInfo[_pid];
+        require(pool.totalSupply.add(1) <= pool.maxSupply, "No more ThunderEggs!");
 
         tokenPointer = tokenPointer.add(1);
         uint256 tokenId = tokenPointer;
@@ -375,7 +375,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         thunderEggIdToName[tokenId] = _name;
 
         // MetaData
-        totalSupply = totalSupply.add(1);
+        pool.totalSupply = pool.totalSupply.add(1);
 
         // Single Transfer event for a single token
         emit Transfer(address(0), _to, tokenId);
@@ -392,29 +392,24 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     }
 
     function tokenURI(uint256 _tokenId) external view returns (string memory) {
-        require(thunderEggIdToOwner[_tokenId] != address(0), "must exist");
+        require(_exists(_tokenId), "must exist");
         return Strings.strConcat(baseTokenURI, Strings.uint2str(_tokenId));
     }
 
-    function _burn(uint256 _tokenId)
-    internal
-    {
+    function _burn(uint256 _pid, uint256 _tokenId) internal {
+        require(_exists(_tokenId), "must exist");
+
         address owner = thunderEggIdToOwner[_tokenId];
 
-        require(
-            owner == msg.sender,
-            "Must own the egg!"
-        );
+        require(owner == msg.sender, "Must own the egg!");
+        require(owner != address(0), "ERC721_ZERO_OWNER_ADDRESS");
 
-        require(
-            owner != address(0),
-            "ERC721_ZERO_OWNER_ADDRESS"
-        );
+        PoolInfo storage pool = poolInfo[_pid];
 
         thunderEggIdToOwner[_tokenId] = address(0);
         ownerToThunderEggId[msg.sender] = 0;
 
-        totalSupply = totalSupply.sub(1);
+        pool.totalSupply = pool.totalSupply.sub(1);
 
         emit Transfer(
             owner,
