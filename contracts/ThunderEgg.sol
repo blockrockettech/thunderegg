@@ -12,12 +12,12 @@ import "@openzeppelin/contracts/introspection/ERC165.sol";
 import "./interfaces/IERC721Token.sol";
 import "./interfaces/IERC721Receiver.sol";
 
-import "./NRGToken.sol";
+import "./LavaToken.sol";
 
-import "./libs/Strings.sol"; // FIXME use lib properly
+import "./libs/Strings.sol";
 
 
-// In the fertile SacredGrove ThunderEggs born and grow with tremendous $NRG
+// In the fertile SacredGrove ThunderEggs born and grow with tremendous $lava
 //
 // Note that it's ownable and the owner wields tremendous power.
 //
@@ -33,12 +33,12 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         uint256 amount;     // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of NRG entitled to a user but is pending to be distributed is:
+        // We do some fancy math here. Basically, any point in time, the amount of lava entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accNRGPerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accLavaPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accNRGPerShare` (and `lastRewardBlock`) gets updated.
+        //   1. The pool's `accLavaPerShare` (and `lastRewardBlock`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -47,19 +47,19 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     // Info of each pool.
     struct PoolInfo {
         IERC20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. NRGs to distribute per block.
-        uint256 lastRewardBlock;  // Last block number that NRGs distribution occurs.
-        uint256 accNRGPerShare; // Accumulated NRG per share, times 1e12. See below.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. lavas to distribute per block.
+        uint256 lastRewardBlock;  // Last block number that lavas distribution occurs.
+        uint256 accLavaPerShare; // Accumulated lava per share, times 1e12. See below.
     }
 
-    // The NRGToken TOKEN!
-    NRGToken public nrg;
+    // The lavaToken TOKEN!
+    LavaToken public lava;
 
     // Block number when bonus period ends.
     uint256 public bonusEndBlock;
 
-    // NRG tokens created per block.
-    uint256 public nrgPerBlock;
+    // Lava tokens created per block.
+    uint256 public lavaPerBlock;
 
     // Bonus muliplier for early makers.
     uint256 public constant BONUS_MULTIPLIER = 10;
@@ -119,13 +119,13 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     // ** end ERC721
 
     constructor(
-        NRGToken _nrg,
-        uint256 _nrgPerBlock,
+        LavaToken _lava,
+        uint256 _lavaPerBlock,
         uint256 _startBlock,
         uint256 _bonusEndBlock
     ) public {
-        nrg = _nrg;
-        nrgPerBlock = _nrgPerBlock;
+        lava = _lava;
+        lavaPerBlock = _lavaPerBlock;
         bonusEndBlock = _bonusEndBlock;
         startBlock = _startBlock;
 
@@ -149,7 +149,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
             lpToken : _lpToken,
             allocPoint : _allocPoint,
             lastRewardBlock : lastRewardBlock,
-            accNRGPerShare : 0
+            accLavaPerShare : 0
             }));
     }
 
@@ -176,40 +176,40 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         }
     }
 
-    function thunderEggStats(uint256 _pid, uint256 _tokenId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _nrg) {
+    function thunderEggStats(uint256 _pid, uint256 _tokenId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _lava) {
         if (!_exists(_tokenId)) {
             return (address(0x0), 0, 0, 0);
         }
 
         ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
 
-        return (thunderEggIdToOwner[_tokenId], thunderEggIdToBirth[_tokenId], info.amount, _calculatePendingNRG(_pid, _tokenId));
+        return (thunderEggIdToOwner[_tokenId], thunderEggIdToBirth[_tokenId], info.amount, _calculatePendinglava(_pid, _tokenId));
     }
 
     // View function to see pending SUSHIs on frontend.
-    function pendingNRG(uint256 _pid, uint256 _tokenId) external view returns (uint256) {
-        // no ThunderEgg, no NRG!
+    function pendinglava(uint256 _pid, uint256 _tokenId) external view returns (uint256) {
+        // no ThunderEgg, no lava!
         if (!_exists(_tokenId)) {
             return 0;
         }
 
-        return _calculatePendingNRG(_pid, _tokenId);
+        return _calculatePendinglava(_pid, _tokenId);
     }
 
 
-    function _calculatePendingNRG(uint256 _pid, uint256 _tokenId) internal view returns (uint256) {
+    function _calculatePendinglava(uint256 _pid, uint256 _tokenId) internal view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
 
-        uint256 accNRGPerShare = pool.accNRGPerShare;
+        uint256 accLavaPerShare = pool.accLavaPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 nrgReward = multiplier.mul(nrgPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accNRGPerShare = accNRGPerShare.add(nrgReward.mul(1e12).div(lpSupply));
+            uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            accLavaPerShare = accLavaPerShare.add(lavaReward.mul(1e12).div(lpSupply));
         }
 
-        return info.amount.mul(accNRGPerShare).div(1e12).sub(info.rewardDebt);
+        return info.amount.mul(accLavaPerShare).div(1e12).sub(info.rewardDebt);
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -234,11 +234,11 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         }
 
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 nrgReward = multiplier.mul(nrgPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
 
-        nrg.mint(address(this), nrgReward);
+        lava.mint(address(this), lavaReward);
 
-        pool.accNRGPerShare = pool.accNRGPerShare.add(nrgReward.mul(1e18).div(lpSupply));
+        pool.accLavaPerShare = pool.accLavaPerShare.add(lavaReward.mul(1e18).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
@@ -260,7 +260,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
             info.amount = info.amount.add(_amount);
         }
 
-        info.rewardDebt = info.amount.mul(pool.accNRGPerShare).div(1e18);
+        info.rewardDebt = info.amount.mul(pool.accLavaPerShare).div(1e18);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
@@ -279,25 +279,25 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         _burn(tokenId);
 
         // pay out rewards from the ThunderEgg
-        uint256 pending = info.amount.mul(pool.accNRGPerShare).div(1e18).sub(info.rewardDebt);
+        uint256 pending = info.amount.mul(pool.accLavaPerShare).div(1e18).sub(info.rewardDebt);
         if (pending > 0) {
-            safeNrgTransfer(msg.sender, pending);
+            safelavaTransfer(msg.sender, pending);
         }
 
         // send all LP back...
         pool.lpToken.safeTransfer(address(msg.sender), info.amount);
 
-        info.rewardDebt = info.amount.mul(pool.accNRGPerShare).div(1e18);
+        info.rewardDebt = info.amount.mul(pool.accLavaPerShare).div(1e18);
         emit Withdraw(msg.sender, _pid, info.amount);
     }
 
     // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
-    function safeNrgTransfer(address _to, uint256 _amount) internal {
-        uint256 nrgBal = nrg.balanceOf(address(this));
-        if (_amount > nrgBal) {
-            nrg.transfer(_to, nrgBal);
+    function safelavaTransfer(address _to, uint256 _amount) internal {
+        uint256 lavaBal = lava.balanceOf(address(this));
+        if (_amount > lavaBal) {
+            lava.transfer(_to, lavaBal);
         } else {
-            nrg.transfer(_to, _amount);
+            lava.transfer(_to, _amount);
         }
     }
 
