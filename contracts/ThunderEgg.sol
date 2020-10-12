@@ -504,7 +504,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         require(_exists(_tokenId), "ERC721: approved query for nonexistent token");
         return approvals[_tokenId];
     }
-    
+
     function isApprovedForAll(address _owner, address _operator) override public view returns (bool) {
         return operatorApprovals[_owner][_operator];
     }
