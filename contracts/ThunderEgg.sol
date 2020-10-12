@@ -28,8 +28,8 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
 
     // ** Chef
 
-    // Info of each user.
-    struct UserInfo {
+    // Info of each ThunderEgg.
+    struct ThunderEggInfo {
         uint256 amount;     // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
@@ -54,18 +54,25 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
 
     // The NRGToken TOKEN!
     NRGToken public nrg;
+
     // Block number when bonus period ends.
     uint256 public bonusEndBlock;
+
     // NRG tokens created per block.
     uint256 public nrgPerBlock;
+
     // Bonus muliplier for early makers.
     uint256 public constant BONUS_MULTIPLIER = 10;
+
     // Info of each pool.
     PoolInfo[] public poolInfo;
+
     // Info of each user that stakes LP tokens.
-    mapping(uint256 => mapping(address => UserInfo)) public userInfo;
+    mapping(uint256 => mapping(uint256 => ThunderEggInfo)) public thunderEggInfoMapping;
+
     // Total allocation poitns. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
+
     // The block number when mining starts.
     uint256 public startBlock;
 
@@ -100,6 +107,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     // Mapping of tokenId => owner
     mapping(uint256 => address) internal thunderEggIdToOwner;
     mapping(uint256 => uint256) internal thunderEggIdToBirth;
+    mapping(uint256 => bytes32) internal thunderEggIdToName;
     mapping(address => uint256) internal ownerToThunderEggId;
 
     // Mapping of tokenId => approved address
@@ -169,28 +177,30 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     }
 
     function thunderEggStats(uint256 _pid, uint256 _tokenId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _nrg) {
-        address owner = thunderEggIdToOwner[_tokenId];
-        require(owner != address(0), "No ThunderEgg!");
+        if (!_exists(_tokenId)) {
+            return (address(0x0), 0, 0, 0);
+        }
 
-        UserInfo memory user = userInfo[_pid][owner];
+        ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
 
-        return (owner, thunderEggIdToBirth[_tokenId], user.amount, _calculatePendingNRG(_pid, owner));
+        return (thunderEggIdToOwner[_tokenId], thunderEggIdToBirth[_tokenId], info.amount, _calculatePendingNRG(_pid, _tokenId));
     }
 
     // View function to see pending SUSHIs on frontend.
-    function pendingNRG(uint256 _pid, address _user) external view returns (uint256) {
+    function pendingNRG(uint256 _pid, uint256 _tokenId) external view returns (uint256) {
         // no ThunderEgg, no NRG!
-        if (ownerToThunderEggId[_user] == 0) {
+        if (!_exists(_tokenId)) {
             return 0;
         }
 
-        return _calculatePendingNRG(_pid, _user);
+        return _calculatePendingNRG(_pid, _tokenId);
     }
 
 
-    function _calculatePendingNRG(uint256 _pid, address _user) internal view returns (uint256) {
-        PoolInfo memory pool = poolInfo[_pid];
-        UserInfo memory user = userInfo[_pid][_user];
+    function _calculatePendingNRG(uint256 _pid, uint256 _tokenId) internal view returns (uint256) {
+        PoolInfo storage pool = poolInfo[_pid];
+        ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
+
         uint256 accNRGPerShare = pool.accNRGPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
@@ -198,7 +208,8 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
             uint256 nrgReward = multiplier.mul(nrgPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
             accNRGPerShare = accNRGPerShare.add(nrgReward.mul(1e12).div(lpSupply));
         }
-        return user.amount.mul(accNRGPerShare).div(1e12).sub(user.rewardDebt);
+
+        return info.amount.mul(accNRGPerShare).div(1e12).sub(info.rewardDebt);
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -232,49 +243,52 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     }
 
     // Deposit LP tokens, mint the ThunderEgg and set allocations...
-    function deposit(uint256 _pid, uint256 _amount) public {
+    function deposit(uint256 _pid, uint256 _amount, bytes32 _name) public {
         require(ownerToThunderEggId[msg.sender] == 0, "Thor has already blessed you with a ThunderEgg!");
 
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][msg.sender];
-
         updatePool(_pid);
+
+        // Thunder 🥚 time!
+        uint256 tokenId = _mint(msg.sender, _name);
+
+        PoolInfo storage pool = poolInfo[_pid];
+        ThunderEggInfo storage info = thunderEggInfoMapping[_pid][tokenId];
 
         // credit the staked amount
         if (_amount > 0) {
             pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
-            user.amount = user.amount.add(_amount);
+            info.amount = info.amount.add(_amount);
         }
 
-        // Thunder 🥚 time!
-        _mint(msg.sender);
-
-        user.rewardDebt = user.amount.mul(pool.accNRGPerShare).div(1e18);
+        info.rewardDebt = info.amount.mul(pool.accNRGPerShare).div(1e18);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
     // Withdraw LP tokens from MasterChef.
     function withdraw(uint256 _pid) public {
-        require(ownerToThunderEggId[msg.sender] != 0, "No ThunderEgg!");
 
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][msg.sender];
+        uint256 tokenId = ownerToThunderEggId[msg.sender];
+        require(tokenId != 0, "No ThunderEgg!");
 
         updatePool(_pid);
 
-        // burn the token - send all rewards and LP back!
-        _burn(ownerToThunderEggId[msg.sender]);
+        PoolInfo storage pool = poolInfo[_pid];
+        ThunderEggInfo storage info = thunderEggInfoMapping[_pid][tokenId];
 
-        uint256 pending = user.amount.mul(pool.accNRGPerShare).div(1e18).sub(user.rewardDebt);
+        // burn the token - send all rewards and LP back!
+        _burn(tokenId);
+
+        // pay out rewards from the ThunderEgg
+        uint256 pending = info.amount.mul(pool.accNRGPerShare).div(1e18).sub(info.rewardDebt);
         if (pending > 0) {
             safeNrgTransfer(msg.sender, pending);
         }
 
         // send all LP back...
-        pool.lpToken.safeTransfer(address(msg.sender), user.amount);
+        pool.lpToken.safeTransfer(address(msg.sender), info.amount);
 
-        user.rewardDebt = user.amount.mul(pool.accNRGPerShare).div(1e18);
-        emit Withdraw(msg.sender, _pid, user.amount);
+        info.rewardDebt = info.amount.mul(pool.accNRGPerShare).div(1e18);
+        emit Withdraw(msg.sender, _pid, info.amount);
     }
 
     // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
@@ -314,6 +328,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
                 tokenId,
                 _data
             ));
+
         if (!success) {
             if (returndata.length > 0) {
                 // solhint-disable-next-line no-inline-assembly
@@ -328,14 +343,21 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
             bytes4 retval = abi.decode(returndata, (bytes4));
             return (retval == ERC721_RECEIVED);
         }
+
+        return true;
     }
 
     function setBaseTokenURI(string calldata _uri) external onlyOwner {
         baseTokenURI = _uri;
     }
 
+    function setName(uint256 _tokenId, bytes32 _name) external onlyOwner {
+        thunderEggIdToName[_tokenId] = _name;
+    }
+
     function _mint(
-        address _to
+        address _to,
+        bytes32 _name
     ) internal returns (uint256) {
         require(_to != address(0), "ERC721: mint to the zero address");
 
@@ -349,6 +371,9 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         // birth
         thunderEggIdToBirth[tokenId] = block.number;
 
+        // name
+        thunderEggIdToName[tokenId] = _name;
+
         // MetaData
         totalSupply = totalSupply.add(1);
 
@@ -359,6 +384,10 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
     }
 
     function exists(uint256 _tokenId) external view returns (bool) {
+        return _exists(_tokenId);
+    }
+
+    function _exists(uint256 _tokenId) internal view returns (bool) {
         return thunderEggIdToOwner[_tokenId] != address(0);
     }
 
