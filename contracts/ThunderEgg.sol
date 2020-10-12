@@ -16,8 +16,7 @@ import "./LavaToken.sol";
 
 import "./libs/Strings.sol";
 
-
-// In the fertile SacredGrove ThunderEggs born and grow with tremendous $lava
+// In the fertile sacred grove under the lightning tree ThunderEggs are spawned!
 //
 // Note that it's ownable and the owner wields tremendous power.
 //
@@ -418,51 +417,16 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         );
     }
 
-    /// @notice Transfers the ownership of an NFT from one address to another address
-    /// @dev This works identically to the other function with an extra data parameter,
-    ///      except this function just sets data to "".
-    /// @param _from The current owner of the NFT
-    /// @param _to The new owner
-    /// @param _tokenId The NFT to transfer
     function safeTransferFrom(address _from, address _to, uint256 _tokenId) override public {
         safeTransferFrom(_from, _to, _tokenId, "");
     }
 
-    /// @notice Transfers the ownership of an NFT from one address to another address
-    /// @dev Throws unless `msg.sender` is the current owner, an authorized
-    ///      operator, or the approved address for this NFT. Throws if `_from` is
-    ///      not the current owner. Throws if `_to` is the zero address. Throws if
-    ///      `_tokenId` is not a valid NFT. When transfer is complete, this function
-    ///      checks if `_to` is a smart contract (code size > 0). If so, it calls
-    ///      `onERC721Received` on `_to` and throws if the return value is not
-    ///      `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`.
-    /// @param _from The current owner of the NFT
-    /// @param _to The new owner
-    /// @param _tokenId The NFT to transfer
-    /// @param _data Additional data with no specified format, sent in call to `_to`
-    function safeTransferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId,
-        bytes memory _data
-    )
-    override
-    public
-    {
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory _data) override public {
         transferFrom(_from, _to, _tokenId);
         require(_checkOnERC721Received(_from, _to, _tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
-    /// @notice Change or reaffirm the approved address for an NFT
-    /// @dev The zero address indicates there is no approved address.
-    ///      Throws unless `msg.sender` is the current NFT owner, or an authorized
-    ///      operator of the current owner.
-    /// @param _approved The new approved NFT controller
-    /// @param _tokenId The NFT to approve
-    function approve(address _approved, uint256 _tokenId)
-    override
-    external
-    {
+    function approve(address _approved, uint256 _tokenId) override external {
         address owner = ownerOf(_tokenId);
         require(_approved != owner, "ERC721: approval to current owner");
 
@@ -479,16 +443,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         );
     }
 
-    /// @notice Enable or disable approval for a third party ("operator") to manage
-    ///         all of `msg.sender`'s assets
-    /// @dev Emits the ApprovalForAll event. The contract MUST allow
-    ///      multiple operators per owner.
-    /// @param _operator Address to add to the set of authorized operators
-    /// @param _approved True if the operator is approved, false to revoke approval
-    function setApprovalForAll(address _operator, bool _approved)
-    override
-    external
-    {
+    function setApprovalForAll(address _operator, bool _approved) override external {
         require(_operator != msg.sender, "ERC721: approve to caller");
 
         operatorApprovals[msg.sender][_operator] = _approved;
@@ -499,42 +454,12 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         );
     }
 
-    /// @notice Count all NFTs assigned to an owner
-    /// @dev NFTs assigned to the zero address are considered invalid, and this
-    ///      function throws for queries about the zero address.
-    /// @param _owner An address for whom to query the balance
-    /// @return The number of NFTs owned by `_owner`, possibly zero
-    function balanceOf(address _owner)
-    override
-    external
-    view
-    returns (uint256)
-    {
-        require(
-            _owner != address(0),
-            "ERC721: owner query for nonexistent token"
-        );
+    function balanceOf(address _owner) override external view returns (uint256) {
+        require(_owner != address(0), "ERC721: owner query for nonexistent token");
         return ownerToThunderEggId[_owner] != 0 ? 1 : 0;
     }
 
-    /// @notice Transfer ownership of an NFT -- THE CALLER IS RESPONSIBLE
-    ///         TO CONFIRM THAT `_to` IS CAPABLE OF RECEIVING NFTS OR ELSE
-    ///         THEY MAY BE PERMANENTLY LOST
-    /// @dev Throws unless `msg.sender` is the current owner, an authorized
-    ///      operator, or the approved address for this NFT. Throws if `_from` is
-    ///      not the current owner. Throws if `_to` is the zero address. Throws if
-    ///      `_tokenId` is not a valid NFT.
-    /// @param _from The current owner of the NFT
-    /// @param _to The new owner
-    /// @param _tokenId The NFT to transfer
-    function transferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId
-    )
-    override
-    public
-    {
+    function transferFrom(address _from, address _to, uint256 _tokenId) override public {
         require(
             _to != address(0),
             "ERC721_ZERO_TO_ADDRESS"
@@ -570,49 +495,17 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         );
     }
 
-    /// @notice Find the owner of an NFT
-    /// @dev NFTs assigned to zero address are considered invalid, and queries
-    ///      about them do throw.
-    /// @param _tokenId The identifier for an NFT
-    /// @return The address of the owner of the NFT
-    function ownerOf(uint256 _tokenId)
-    override
-    public
-    view
-    returns (address)
-    {
-        address owner = thunderEggIdToOwner[_tokenId];
-        require(
-            owner != address(0),
-            "ERC721: owner query for nonexistent token"
-        );
-        return owner;
+    function ownerOf(uint256 _tokenId) override public view returns (address) {
+        require(_exists(_tokenId), "ERC721: owner query for nonexistent token");
+        return thunderEggIdToOwner[_tokenId];
     }
 
-    /// @notice Get the approved address for a single NFT
-    /// @dev Throws if `_tokenId` is not a valid NFT.
-    /// @param _tokenId The NFT to find the approved address for
-    /// @return The approved address for this NFT, or the zero address if there is none
-    function getApproved(uint256 _tokenId)
-    override
-    public
-    view
-    returns (address)
-    {
-        require(thunderEggIdToOwner[_tokenId] != address(0), "ERC721: approved query for nonexistent token");
+    function getApproved(uint256 _tokenId) override public view returns (address) {
+        require(_exists(_tokenId), "ERC721: approved query for nonexistent token");
         return approvals[_tokenId];
     }
-
-    /// @notice Query if an address is an authorized operator for another address
-    /// @param _owner The address that owns the NFTs
-    /// @param _operator The address that acts on behalf of the owner
-    /// @return True if `_operator` is an approved operator for `_owner`, false otherwise
-    function isApprovedForAll(address _owner, address _operator)
-    override
-    public
-    view
-    returns (bool)
-    {
+    
+    function isApprovedForAll(address _owner, address _operator) override public view returns (bool) {
         return operatorApprovals[_owner][_operator];
     }
 }
