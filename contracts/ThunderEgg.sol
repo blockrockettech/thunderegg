@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/introspection/ERC165.sol";
 import "./interfaces/IERC721Token.sol";
 import "./interfaces/IERC721Receiver.sol";
@@ -15,13 +14,14 @@ import "./interfaces/IERC721Receiver.sol";
 import "./LavaToken.sol";
 
 import "./libs/Strings.sol";
+import "./libs/Godable.sol";
 
 // In the fertile sacred grove under the lightning tree ThunderEggs are spawned!
 //
 // Note that it's ownable and the owner wields tremendous power.
 //
 // Don't mess with the Gods especially the God of Thunder!
-contract ThunderEgg is Ownable, IERC721Token, ERC165 {
+contract ThunderEgg is Godable, IERC721Token, ERC165 {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -51,6 +51,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         uint256 accLavaPerShare; // Accumulated lava per share, times 1e18. See below.
         uint256 totalSupply; // max ThunderEggs for this pool
         uint256 maxSupply; // max ThunderEggs for this pool
+        uint256 endBlock; // god has spoken - this pool is 'ova
     }
 
     // The lavaToken TOKEN!
@@ -138,7 +139,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
 
     // Add a new lp to the pool. Can only be called by the owner.
     // XXX DO NOT add the same LP token more than once. Rewards will be messed up if you do.
-    function addToPools(uint256 _allocPoint, IERC20 _lpToken, bool _withUpdate) public onlyOwner {
+    function addToPools(uint256 _allocPoint, IERC20 _lpToken, bool _withUpdate) public onlyGod {
         if (_withUpdate) {
             massUpdatePools();
         }
@@ -150,17 +151,28 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
             lastRewardBlock : lastRewardBlock,
             accLavaPerShare : 0,
             totalSupply: 0,
-            maxSupply: 999
+            maxSupply: 999,
+            endBlock: 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             }));
     }
 
     // Update the given pool's allocation point. Can only be called by the owner.
-    function set(uint256 _pid, uint256 _allocPoint, bool _withUpdate) public onlyOwner {
+    function set(uint256 _pid, uint256 _allocPoint, bool _withUpdate) public onlyGod {
         if (_withUpdate) {
             massUpdatePools();
         }
         totalAllocPoint = totalAllocPoint.sub(poolInfo[_pid].allocPoint).add(_allocPoint);
         poolInfo[_pid].allocPoint = _allocPoint;
+    }
+
+    function end(uint256 _pid, uint256 _endBlock, bool _withUpdate) public onlyGod {
+        require(_endBlock > block.number, "must be in the near future...sometime");
+
+        poolInfo[_pid].endBlock = _endBlock;
+
+        if (_withUpdate) {
+            massUpdatePools();
+        }
     }
 
 
@@ -171,9 +183,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         } else if (_from >= bonusEndBlock) {
             return _to.sub(_from);
         } else {
-            return bonusEndBlock.sub(_from).mul(BONUS_MULTIPLIER).add(
-                _to.sub(bonusEndBlock)
-            );
+            return bonusEndBlock.sub(_from).mul(BONUS_MULTIPLIER).add(_to.sub(bonusEndBlock));
         }
     }
 
@@ -205,7 +215,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         uint256 accLavaPerShare = pool.accLavaPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
-            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
+            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number <= pool.endBlock ? block.number : pool.endBlock);
             uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
             accLavaPerShare = accLavaPerShare.add(lavaReward.mul(1e12).div(lpSupply));
         }
@@ -234,7 +244,7 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
             return;
         }
 
-        uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
+        uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number <= pool.endBlock ? block.number : pool.endBlock);
         uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
 
         lava.mint(address(this), lavaReward);
@@ -346,11 +356,11 @@ contract ThunderEgg is Ownable, IERC721Token, ERC165 {
         return true;
     }
 
-    function setBaseTokenURI(string calldata _uri) external onlyOwner {
+    function setBaseTokenURI(string calldata _uri) external onlyGod {
         baseTokenURI = _uri;
     }
 
-    function setName(uint256 _tokenId, bytes32 _name) external onlyOwner {
+    function setName(uint256 _tokenId, bytes32 _name) external onlyGod {
         thunderEggIdToName[_tokenId] = _name;
     }
 
