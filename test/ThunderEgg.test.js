@@ -97,8 +97,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
     });
 
   });
-
-
+  
   context('God operations', () => {
     beforeEach(async () => {
       this.lava = await LavaToken.new(ZERO, thor, thor, {from: thor});
