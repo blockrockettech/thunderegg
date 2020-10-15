@@ -170,34 +170,38 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
     });
 
     it('after initial setting only god can set name of egg', async () => {
-
       await expectRevert(
         this.thunderEgg.setName(new BN('1111'), ethers.utils.formatBytes32String('test'), {from: alice}),
         'Godable: caller is not the god'
       );
 
+      // spawn a thunderegg
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
-      await this.thunderEgg.deposit(this.pid, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+      await this.thunderEgg.deposit(this.pid, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("something dodgy"), {from: alice});
 
-      await this.thunderEgg.setName(TOKEN_ID_ONE, ethers.utils.formatBytes32String('test'), {from: thor});
+      // only thor can set names
+      await this.thunderEgg.setName(TOKEN_ID_ONE, ethers.utils.formatBytes32String('Luke'), {from: thor});
 
       const stats = await this.thunderEgg.thunderEggStats(this.pid, TOKEN_ID_ONE);
-      console.log(stats);
+      stats._name.should.be.equal(ethers.utils.formatBytes32String('Luke'));
     });
 
-    it('can only withdraw if a egg exists', async () => {
+    it.only('can only withdraw if a egg exists', async () => {
 
-      await this.thunderEgg.withdraw(new BN('1111'), {from: thor});
+      await expectRevert(
+        this.thunderEgg.withdraw(new BN('1111'), {from: thor}),
+        'xxx'
+      );
     });
 
-    it('can only have one egg each', async () => {
+    it.only('can only have one egg each', async () => {
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
 
+      // create first thunderegg
       await this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice});
+
+      // not allowed a second!
       await this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice});
-
-
-
     });
   });
 });
