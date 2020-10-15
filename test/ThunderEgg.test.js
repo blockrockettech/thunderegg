@@ -134,6 +134,9 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       );
 
       await this.thunderEgg.set(this.pid, new BN('1000'), false, {from: thor});
+
+      // asset the poolInfo[_pid].allocPoint is what you set
+      // this.thunderEdgg.poolInfo(pid) will give you the data I think
     });
 
     it('should only allow god to end allocation points', async () => {
@@ -144,6 +147,9 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       );
 
       await this.thunderEgg.end(this.pid, new BN('1000'), false, {from: thor});
+
+      // asset the poolInfo[_pid].endBlokc is what you set
+      // this.thunderEdgg.poolInfo(pid) will give you the data I think
     });
   });
 });
