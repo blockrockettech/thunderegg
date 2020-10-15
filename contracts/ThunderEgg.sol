@@ -107,8 +107,8 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // Mapping of tokenId => owner
     mapping(uint256 => address) internal thunderEggIdToOwner;
     mapping(uint256 => uint256) internal thunderEggIdToBirth;
-    mapping(uint256 => bytes32) internal thunderEggIdToName;
     mapping(address => uint256) internal ownerToThunderEggId;
+    mapping(uint256 => bytes32) internal thunderEggIdToName;
 
     // Mapping of tokenId => approved address
     mapping(uint256 => address) internal approvals;
@@ -187,14 +187,14 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         }
     }
 
-    function thunderEggStats(uint256 _pid, uint256 _tokenId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _lava) {
+    function thunderEggStats(uint256 _pid, uint256 _tokenId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _lava, bytes32 _name) {
         if (!_exists(_tokenId)) {
-            return (address(0x0), 0, 0, 0);
+            return (address(0x0), 0, 0, 0, bytes32(0x0));
         }
 
         ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
 
-        return (thunderEggIdToOwner[_tokenId], thunderEggIdToBirth[_tokenId], info.amount, _calculatePendingLava(_pid, _tokenId));
+        return (thunderEggIdToOwner[_tokenId], thunderEggIdToBirth[_tokenId], info.amount, _calculatePendingLava(_pid, _tokenId), thunderEggIdToName[_tokenId]);
     }
 
     // View function to see pending SUSHIs on frontend.

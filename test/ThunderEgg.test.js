@@ -17,6 +17,7 @@ const to18DP = (value) => {
 contract('ThunderEgg', ([thor, alice, bob, carol]) => {
   const ONE_THOUSAND_TOKENS = to18DP('1000');
   const ONE = new BN('1');
+  const TOKEN_ID_ONE = new BN('1');
   const ZERO = new BN('0');
 
   const LAVA_PER_BLOCK = new BN('100');
@@ -103,6 +104,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       this.lava = await LavaToken.new(ZERO, thor, thor, {from: thor});
 
       this.stakingToken = await MockERC20.new('LPToken', 'LP', ONE_THOUSAND_TOKENS.mul(new BN('4')), {from: thor});
+      await this.stakingToken.transfer(alice, ONE_THOUSAND_TOKENS, {from: thor});
 
       this.thunderEgg = await ThunderEgg.new(
         this.lava.address,
@@ -135,7 +137,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       await this.thunderEgg.set(this.pid, new BN('1000'), false, {from: thor});
       const poolInfo = await this.thunderEgg.poolInfo(this.pid);
-      poolInfo.allocPoint.should.be.bignumber.equal('1000')
+      poolInfo.allocPoint.should.be.bignumber.equal('1000');
     });
 
     it('should only allow god to end allocation points', async () => {
@@ -147,7 +149,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       await this.thunderEgg.end(this.pid, new BN('1000'), false, {from: thor});
       const poolInfo = await this.thunderEgg.poolInfo(this.pid);
-      poolInfo.endBlock.should.be.bignumber.equal('1000')
+      poolInfo.endBlock.should.be.bignumber.equal('1000');
     });
 
     it('ensure endblock is greater than current block', async () => {
@@ -160,21 +162,42 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
     it('only god should be able to set base token', async () => {
 
-        await expectRevert(
-          this.thunderEgg.setBaseTokenURI(('https://example.com/path/resource.txt#fragment'), {from: alice}),
-          'Godable: caller is not the god'
-        );
-       
+      await expectRevert(
+        this.thunderEgg.setBaseTokenURI(('https://example.com/path/resource.txt#fragment'), {from: alice}),
+        'Godable: caller is not the god'
+      );
+
     });
-    
-    it ('after initial setting only god can set name of egg', async () => { 
-      
+
+    it('after initial setting only god can set name of egg', async () => {
+
       await expectRevert(
         this.thunderEgg.setName(new BN('1111'), ethers.utils.formatBytes32String('test'), {from: alice}),
-        'Godable: caller is not the god'      
+        'Godable: caller is not the god'
       );
-      
-      await this.thunderEgg.setName(new BN('1111'), ethers.utils.formatBytes32String('test'), {from: thor});
+
+      await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
+      await this.thunderEgg.deposit(this.pid, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+
+      await this.thunderEgg.setName(TOKEN_ID_ONE, ethers.utils.formatBytes32String('test'), {from: thor});
+
+      const stats = await this.thunderEgg.thunderEggStats(this.pid, TOKEN_ID_ONE);
+      console.log(stats);
+    });
+
+    it('can only withdraw if a egg exists', async () => {
+
+      await this.thunderEgg.withdraw(new BN('1111'), {from: thor});
+    });
+
+    it('can only have one egg each', async () => {
+      await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
+
+      await this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice});
+      await this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice});
+
+
+
     });
   });
 });
