@@ -168,13 +168,13 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     function end(uint256 _pid, uint256 _endBlock, bool _withUpdate) public onlyGod {
         require(_endBlock > block.number, "must be in the near future...sometime");
 
-        poolInfo[_pid].endBlock = _endBlock;
+        PoolInfo storage pool = poolInfo[_pid];
+        pool.endBlock = _endBlock;
 
         if (_withUpdate) {
             massUpdatePools();
         }
     }
-
 
     // Return reward multiplier over the given _from to _to block.
     function getMultiplier(uint256 _from, uint256 _to) public view returns (uint256) {
