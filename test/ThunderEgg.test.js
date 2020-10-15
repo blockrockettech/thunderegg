@@ -111,6 +111,9 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
         ZERO, // bonus block
         {from: thor}
       );
+
+      await this.thunderEgg.addToPools(ONE, this.stakingToken.address, true, {from: thor});
+      this.pid = (await this.thunderEgg.poolLength()).sub(ONE);
     });
 
     it('should only allow god to addToPools', async () => {
@@ -125,24 +128,22 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
     it('should only allow god to set allocation points', async () => {
 
-        await expectRevert(
-          this.thunderEgg.set(new BN('0'), new BN('1000'), false, {from: alice}),
-          'Godable: caller is not the god'
-       );
-      
-       await this.thunderEgg.set(new BN('0'), new BN('1000'), false, {from: thor});
+      await expectRevert(
+        this.thunderEgg.set(this.pid, new BN('1000'), false, {from: alice}),
+        'Godable: caller is not the god'
+      );
+
+      await this.thunderEgg.set(this.pid, new BN('1000'), false, {from: thor});
     });
 
     it('should only allow god to end allocation points', async () => {
 
       await expectRevert(
-        this.thunderEgg.end(new BN('0'), new BN('1000'), false, {from: alice}),
+        this.thunderEgg.end(this.pid, new BN('1000'), false, {from: alice}),
         'Godable: caller is not the god'
-     );
+      );
 
-     await this.thunderEgg.end(new BN('0'), new BN('1000'), false, {from: thor});
-  });
-
-
+      await this.thunderEgg.end(this.pid, new BN('1000'), false, {from: thor});
+    });
   });
 });
