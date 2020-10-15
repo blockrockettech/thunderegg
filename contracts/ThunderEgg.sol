@@ -166,7 +166,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     }
 
     function end(uint256 _pid, uint256 _endBlock, bool _withUpdate) public onlyGod {
-        require(_endBlock > block.number, "must be in the near future...sometime");
+        require(_endBlock > block.number, "Must be in the future");
 
         PoolInfo storage pool = poolInfo[_pid];
         pool.endBlock = _endBlock;
@@ -206,7 +206,6 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
 
         return _calculatePendingLava(_pid, _tokenId);
     }
-
 
     function _calculatePendingLava(uint256 _pid, uint256 _tokenId) internal view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];

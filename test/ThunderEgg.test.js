@@ -150,17 +150,12 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       poolInfo.endBlock.should.be.bignumber.equal('1000')
     });
 
-    it('endblock is greater than current block', async () => {
+    it('ensure endblock is greater than current block', async () => {
 
       await expectRevert(
-        this.thunderEgg.end(this.pid, new BN('1000'), false, {from: alice}),
-        'Godable: caller is not the god'
-      );
-
-      await expectRevert( 
         this.thunderEgg.end(this.pid, new BN('0'), false, {from: thor}),
-        'Godable: caller is the god'
-        );
+        'Must be in the future'
+      );
     });
 
     it('only god should be able to set base token', async () => {
@@ -175,15 +170,11 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
     it ('after initial setting only god can set name of egg', async () => { 
       
       await expectRevert(
-        this.thunderEgg.setName(this._tokenId, ethers.utils.formatBytes32String('test'), {from: alice}),
+        this.thunderEgg.setName(new BN('1111'), ethers.utils.formatBytes32String('test'), {from: alice}),
         'Godable: caller is not the god'      
       );
-
-      await expectRevert(
-        this.thunderEgg.setName(this._tokenId, ethers.utils.formatBytes32String('test'), {from: thor}),
-        'Godable: caller is the god'      
-      );
-
+      
+      await this.thunderEgg.setName(new BN('1111'), ethers.utils.formatBytes32String('test'), {from: thor});
     });
   });
 });
