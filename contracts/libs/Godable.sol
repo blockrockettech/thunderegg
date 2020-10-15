@@ -40,7 +40,7 @@ contract Godable {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyGod() {
-        require(_god == msg.sender, "GodComplex: caller is not the god");
+        require(_god == msg.sender, "Godable: caller is not the god");
         _;
     }
 
@@ -49,7 +49,7 @@ contract Godable {
      * Can only be called by the current owner.
      */
     function transferGod(address newOwner) public virtual onlyGod {
-        require(newOwner != address(0), "GodComplex: new owner is the zero address");
+        require(newOwner != address(0), "Godable: new owner is the zero address");
         emit OwnershipTransferred(_god, newOwner);
         _god = newOwner;
     }
