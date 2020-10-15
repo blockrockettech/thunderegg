@@ -134,9 +134,8 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       );
 
       await this.thunderEgg.set(this.pid, new BN('1000'), false, {from: thor});
-
-      // asset the poolInfo[_pid].allocPoint is what you set
-      // this.thunderEdgg.poolInfo(pid) will give you the data I think
+      const poolInfo = await this.thunderEgg.poolInfo(this.pid);
+      poolInfo.allocPoint.should.be.bignumber.equal('1000')
     });
 
     it('should only allow god to end allocation points', async () => {
@@ -147,9 +146,44 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       );
 
       await this.thunderEgg.end(this.pid, new BN('1000'), false, {from: thor});
+      const poolInfo = await this.thunderEgg.poolInfo(this.pid);
+      poolInfo.endBlock.should.be.bignumber.equal('1000')
+    });
 
-      // asset the poolInfo[_pid].endBlokc is what you set
-      // this.thunderEdgg.poolInfo(pid) will give you the data I think
+    it('endblock is greater than current block', async () => {
+
+      await expectRevert(
+        this.thunderEgg.end(this.pid, new BN('1000'), false, {from: alice}),
+        'Godable: caller is not the god'
+      );
+
+      await expectRevert( 
+        this.thunderEgg.end(this.pid, new BN('0'), false, {from: thor}),
+        'Godable: caller is the god'
+        );
+    });
+
+    it('only god should be able to set base token', async () => {
+
+        await expectRevert(
+          this.thunderEgg.setBaseTokenURI(('https://example.com/path/resource.txt#fragment'), {from: alice}),
+          'Godable: caller is not the god'
+        );
+       
+    });
+    
+    it ('after initial setting only god can set name of egg', async () => { 
+      
+      await expectRevert(
+        this.thunderEgg.setName(this._tokenId, ethers.utils.formatBytes32String('test'), {from: alice}),
+        'Godable: caller is not the god'      
+      );
+
+      await expectRevert(
+        this.thunderEgg.setName(this._tokenId, ethers.utils.formatBytes32String('test'), {from: thor}),
+        'Godable: caller is the god'      
+      );
+
     });
   });
 });
