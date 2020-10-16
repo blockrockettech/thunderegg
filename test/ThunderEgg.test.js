@@ -185,22 +185,26 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       stats._name.should.be.equal(ethers.utils.formatBytes32String('Luke'));
     });
 
-    it.only('can only withdraw if a egg exists', async () => {
+    it('can only withdraw if a egg exists', async () => {
 
       await expectRevert(
         this.thunderEgg.withdraw(new BN('1111'), {from: thor}),
-        'xxx'
+        'No ThunderEgg!'
       );
     });
 
-    it.only('can only have one egg each', async () => {
+    it('can only have one egg each', async () => {
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
 
       // create first thunderegg
       await this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice});
 
       // not allowed a second!
-      await this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice});
+      await expectRevert(
+       this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice}),
+       'Thor has already blessed you with a ThunderEgg!'
+      );
+
     });
   });
 });
