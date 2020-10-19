@@ -20,7 +20,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
   const TOKEN_ID_ONE = new BN('1');
   const ZERO = new BN('0');
 
-  const LAVA_PER_BLOCK = new BN('100');
+  const LAVA_PER_BLOCK = to18DP('1');
 
   it('should set correct state variables', async () => {
     const rewardLimit = ONE_THOUSAND_TOKENS;
@@ -57,43 +57,36 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       this.thunderEgg = await ThunderEgg.new(
         this.lava.address,
         LAVA_PER_BLOCK,
-        ZERO,
-        ZERO, // bonus block
+        new BN('50'),
+        new BN('50'), // bonus block
         {from: thor}
       );
 
       await this.lava.changeMinter(this.thunderEgg.address, {from: thor});
 
-      await this.thunderEgg.addToPools(ONE, this.stakingToken.address, true, {from: thor});
+      await this.thunderEgg.addSacredGrove(ONE, this.stakingToken.address, true, {from: thor});
 
-      const pid = (await this.thunderEgg.poolLength()).sub(ONE);
+      const groveId = (await this.thunderEgg.sacredGroveLength()).sub(ONE);
 
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
-      await this.thunderEgg.deposit(pid, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+
+      await time.advanceBlockTo('50');
+
+      await this.thunderEgg.deposit(groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal('1');
-      // (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal('1');
-      // console.log(await this.thunderEgg.thunderEggStats(pid, ONE));
 
-      await time.advanceBlockTo('89');
-      await this.thunderEgg.massUpdatePools();
+      await time.advanceBlockTo('55');
 
-      // console.log(await this.thunderEgg.thunderEggStats(pid, ONE));
+      await this.thunderEgg.massUpdateSacredGroves();
 
-      // await this.chef.harvest(stakeTokenInternalId, {from: bob}); // block 90
-      // assert.equal((await this.deFiCasinoToken.balanceOf(bob)).toString(), '0');
-      // await time.advanceBlockTo('94');
-      // await this.chef.harvest(stakeTokenInternalId, {from: bob}); // block 95
-      // assert.equal((await this.deFiCasinoToken.balanceOf(bob)).toString(), '0');
-      // await time.advanceBlockTo('99');
-      // await this.chef.harvest(stakeTokenInternalId, {from: bob}); // block 100
-      // assert.equal((await this.deFiCasinoToken.balanceOf(bob)).toString(), '0');
-      // await time.advanceBlockTo('100');
-      // await this.chef.harvest(stakeTokenInternalId, {from: bob}); // block 101
-      // assert.equal((await this.deFiCasinoToken.balanceOf(bob)).toString(), '80');
-      // await time.advanceBlockTo('104');
-      // await this.chef.harvest(stakeTokenInternalId, {from: bob}); // block 105
-      // assert.equal((await this.deFiCasinoToken.balanceOf(bob)).toString(), '400');
+      // (address _owner, uint256 _birth, uint256 _lp, uint256 _lava, bytes32 _name)
+      const {_owner, _birth, _lp, _lava, _name} = await this.thunderEgg.thunderEggStats(groveId, ONE);
+      _owner.should.be.equal(alice);
+      _birth.should.be.bignumber.equal('51'); // first block after start
+      _lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
+      _lava.should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(5)));
+      _name.should.be.equal(ethers.utils.formatBytes32String("test"));
     });
 
   });
@@ -113,18 +106,18 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
         {from: thor}
       );
 
-      await this.thunderEgg.addToPools(ONE, this.stakingToken.address, true, {from: thor});
-      this.pid = (await this.thunderEgg.poolLength()).sub(ONE);
+      await this.thunderEgg.addSacredGrove(ONE, this.stakingToken.address, true, {from: thor});
+      this.pid = (await this.thunderEgg.sacredGroveLength()).sub(ONE);
     });
 
     it('should only allow god to addToPools', async () => {
 
       await expectRevert(
-        this.thunderEgg.addToPools(new BN('100'), this.stakingToken.address, false, {from: alice}),
+        this.thunderEgg.addSacredGrove(new BN('100'), this.stakingToken.address, false, {from: alice}),
         'Godable: caller is not the god'
       );
 
-      await this.thunderEgg.addToPools(new BN('100'), this.stakingToken.address, false, {from: thor});
+      await this.thunderEgg.addSacredGrove(new BN('100'), this.stakingToken.address, false, {from: thor});
     });
 
     it('should only allow god to set allocation points', async () => {
@@ -135,8 +128,8 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       );
 
       await this.thunderEgg.set(this.pid, new BN('1000'), false, {from: thor});
-      const poolInfo = await this.thunderEgg.poolInfo(this.pid);
-      poolInfo.allocPoint.should.be.bignumber.equal('1000');
+      const sacredGrove = await this.thunderEgg.sacredGrove(this.pid);
+      sacredGrove.allocPoint.should.be.bignumber.equal('1000');
     });
 
     it('should only allow god to end allocation points', async () => {
@@ -147,8 +140,8 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       );
 
       await this.thunderEgg.end(this.pid, new BN('1000'), false, {from: thor});
-      const poolInfo = await this.thunderEgg.poolInfo(this.pid);
-      poolInfo.endBlock.should.be.bignumber.equal('1000');
+      const sacredGrove = await this.thunderEgg.sacredGrove(this.pid);
+      sacredGrove.endBlock.should.be.bignumber.equal('1000');
     });
 
     it('ensure endblock is greater than current block', async () => {

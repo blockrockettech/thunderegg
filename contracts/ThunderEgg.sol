@@ -16,6 +16,8 @@ import "./LavaToken.sol";
 import "./libs/Strings.sol";
 import "./libs/Godable.sol";
 
+import "@nomiclabs/buidler/console.sol";
+
 // In the fertile sacred grove under the lightning tree ThunderEggs are spawned!
 //
 // Note that it's ownable and the owner wields tremendous power.
@@ -43,8 +45,8 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         //   4. User's `rewardDebt` gets updated.
     }
 
-    // Info of each pool.
-    struct PoolInfo {
+    // Info of each sacred grove.
+    struct SacredGrove {
         IERC20 lpToken;           // Address of LP token contract.
         uint256 allocPoint;       // How many allocation points assigned to this pool. lavas to distribute per block.
         uint256 lastRewardBlock;  // Last block number that lavas distribution occurs.
@@ -66,21 +68,21 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // Bonus muliplier for early makers.
     uint256 public constant BONUS_MULTIPLIER = 10;
 
-    // Info of each pool.
-    PoolInfo[] public poolInfo;
+    // Info of each grove.
+    SacredGrove[] public sacredGrove;
 
     // Info of each user that stakes LP tokens.
     mapping(uint256 => mapping(uint256 => ThunderEggInfo)) public thunderEggInfoMapping;
 
-    // Total allocation poitns. Must be the sum of all allocation points in all pools.
+    // Total allocation poitns. Must be the sum of all allocation points in all groves.
     uint256 public totalAllocPoint = 0;
 
     // The block number when mining starts.
     uint256 public startBlock;
 
-    event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
-    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
-    event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
+    event Deposit(address indexed user, uint256 indexed groveId, uint256 amount);
+    event Withdraw(address indexed user, uint256 indexed groveId, uint256 amount);
+    event EmergencyWithdraw(address indexed user, uint256 indexed groveId, uint256 amount);
 
     // ** end Chef
 
@@ -133,46 +135,46 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         _registerInterface(_INTERFACE_ID_ERC721_METADATA);
     }
 
-    function poolLength() external view returns (uint256) {
-        return poolInfo.length;
+    function sacredGroveLength() external view returns (uint256) {
+        return sacredGrove.length;
     }
 
-    // Add a new lp to the pool. Can only be called by the owner.
-    // XXX DO NOT add the same LP token more than once. Rewards will be messed up if you do.
-    function addToPools(uint256 _allocPoint, IERC20 _lpToken, bool _withUpdate) public onlyGod {
+    // Add a new lp to the pool. Can only be called by god!!
+    // NOTE: DO NOT add the same LP token more than once. Rewards will be messed up if you do.
+    function addSacredGrove(uint256 _allocPoint, IERC20 _lpToken, bool _withUpdate) public onlyGod {
         if (_withUpdate) {
-            massUpdatePools();
+            massUpdateSacredGroves();
         }
         uint256 lastRewardBlock = block.number > startBlock ? block.number : startBlock;
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
-        poolInfo.push(PoolInfo({
+        sacredGrove.push(SacredGrove({
             lpToken : _lpToken,
             allocPoint : _allocPoint,
             lastRewardBlock : lastRewardBlock,
             accLavaPerShare : 0,
-            totalSupply: 0,
-            maxSupply: 999,
-            endBlock: 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+            totalSupply : 0,
+            maxSupply : 999,
+            endBlock : 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             }));
     }
 
     // Update the given pool's allocation point. Can only be called by the owner.
-    function set(uint256 _pid, uint256 _allocPoint, bool _withUpdate) public onlyGod {
+    function set(uint256 _groveId, uint256 _allocPoint, bool _withUpdate) public onlyGod {
         if (_withUpdate) {
-            massUpdatePools();
+            massUpdateSacredGroves();
         }
-        totalAllocPoint = totalAllocPoint.sub(poolInfo[_pid].allocPoint).add(_allocPoint);
-        poolInfo[_pid].allocPoint = _allocPoint;
+        totalAllocPoint = totalAllocPoint.sub(sacredGrove[_groveId].allocPoint).add(_allocPoint);
+        sacredGrove[_groveId].allocPoint = _allocPoint;
     }
 
-    function end(uint256 _pid, uint256 _endBlock, bool _withUpdate) public onlyGod {
+    function end(uint256 _groveId, uint256 _endBlock, bool _withUpdate) public onlyGod {
         require(_endBlock > block.number, "Must be in the future");
 
-        PoolInfo storage pool = poolInfo[_pid];
+        SacredGrove storage pool = sacredGrove[_groveId];
         pool.endBlock = _endBlock;
 
         if (_withUpdate) {
-            massUpdatePools();
+            massUpdateSacredGroves();
         }
     }
 
@@ -187,82 +189,98 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         }
     }
 
-    function thunderEggStats(uint256 _pid, uint256 _tokenId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _lava, bytes32 _name) {
+    function thunderEggStats(uint256 _groveId, uint256 _tokenId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _lava, bytes32 _name) {
         if (!_exists(_tokenId)) {
             return (address(0x0), 0, 0, 0, bytes32(0x0));
         }
 
-        ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
+        ThunderEggInfo storage info = thunderEggInfoMapping[_groveId][_tokenId];
 
-        return (thunderEggIdToOwner[_tokenId], thunderEggIdToBirth[_tokenId], info.amount, _calculatePendingLava(_pid, _tokenId), thunderEggIdToName[_tokenId]);
+        return (
+        thunderEggIdToOwner[_tokenId],
+        thunderEggIdToBirth[_tokenId],
+        info.amount,
+        _calculatePendingLava(_groveId, _tokenId),
+        thunderEggIdToName[_tokenId]
+        );
     }
 
     // View function to see pending SUSHIs on frontend.
-    function pendingLava(uint256 _pid, uint256 _tokenId) external view returns (uint256) {
+    function pendingLava(uint256 _groveId, uint256 _tokenId) external view returns (uint256) {
         // no ThunderEgg, no lava!
         if (!_exists(_tokenId)) {
             return 0;
         }
 
-        return _calculatePendingLava(_pid, _tokenId);
+        return _calculatePendingLava(_groveId, _tokenId);
     }
 
-    function _calculatePendingLava(uint256 _pid, uint256 _tokenId) internal view returns (uint256) {
-        PoolInfo storage pool = poolInfo[_pid];
-        ThunderEggInfo storage info = thunderEggInfoMapping[_pid][_tokenId];
+    function _calculatePendingLava(uint256 _groveId, uint256 _tokenId) internal view returns (uint256) {
+        SacredGrove storage grove = sacredGrove[_groveId];
+        ThunderEggInfo storage info = thunderEggInfoMapping[_groveId][_tokenId];
 
-        uint256 accLavaPerShare = pool.accLavaPerShare;
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        if (block.number > pool.lastRewardBlock && lpSupply != 0) {
-            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number <= pool.endBlock ? block.number : pool.endBlock);
-            uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accLavaPerShare = accLavaPerShare.add(lavaReward.mul(1e12).div(lpSupply));
+        uint256 accLavaPerShare = grove.accLavaPerShare;
+        console.log("accLavaPerShare", accLavaPerShare);
+
+        uint256 lpSupply = grove.lpToken.balanceOf(address(this));
+        if (block.number > grove.lastRewardBlock && lpSupply != 0) {
+            uint256 multiplier = getMultiplier(grove.lastRewardBlock, block.number <= grove.endBlock ? block.number : grove.endBlock);
+            uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(grove.allocPoint).div(totalAllocPoint);
+            accLavaPerShare = accLavaPerShare.add(lavaReward.mul(1e18).div(lpSupply));
         }
 
-        return info.amount.mul(accLavaPerShare).div(1e12).sub(info.rewardDebt);
+        return info.amount.mul(accLavaPerShare).div(1e18).sub(info.rewardDebt);
     }
 
-    // Update reward variables for all pools. Be careful of gas spending!
-    function massUpdatePools() public {
-        uint256 length = poolInfo.length;
-        for (uint256 pid = 0; pid < length; ++pid) {
-            updatePool(pid);
+    // Update reward variables for all grove. Be careful of gas spending!
+    function massUpdateSacredGroves() public {
+        uint256 length = sacredGrove.length;
+        for (uint256 groveId = 0; groveId < length; ++groveId) {
+            updateSacredGrove(groveId);
         }
     }
 
     // Update reward variables of the given pool to be up-to-date.
-    function updatePool(uint256 _pid) public {
-        PoolInfo storage pool = poolInfo[_pid];
-        if (block.number <= pool.lastRewardBlock) {
+    function updateSacredGrove(uint256 _groveId) public {
+        SacredGrove storage grove = sacredGrove[_groveId];
+        if (block.number <= grove.lastRewardBlock) {
             return;
         }
 
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = grove.lpToken.balanceOf(address(this));
         if (lpSupply == 0) {
-            pool.lastRewardBlock = block.number;
+            grove.lastRewardBlock = block.number;
             return;
         }
 
-        uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number <= pool.endBlock ? block.number : pool.endBlock);
-        uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        uint256 multiplier = getMultiplier(grove.lastRewardBlock, block.number <= grove.endBlock ? block.number : grove.endBlock);
+        console.log("multiplier", multiplier);
+
+
+        uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(grove.allocPoint).div(totalAllocPoint);
+        console.log("lavaReward", lavaReward);
+        console.log("pool.allocPoint", grove.allocPoint);
+        console.log("totalAllocPoint", totalAllocPoint);
 
         lava.mint(address(this), lavaReward);
 
-        pool.accLavaPerShare = pool.accLavaPerShare.add(lavaReward.mul(1e18).div(lpSupply));
-        pool.lastRewardBlock = block.number;
+        grove.accLavaPerShare = grove.accLavaPerShare.add(lavaReward.mul(1e18).div(lpSupply));
+        grove.lastRewardBlock = block.number;
+
+        console.log("grove.accLavaPerShare", grove.accLavaPerShare);
     }
 
     // Deposit LP tokens, mint the ThunderEgg and set allocations...
-    function deposit(uint256 _pid, uint256 _amount, bytes32 _name) public {
+    function deposit(uint256 _groveId, uint256 _amount, bytes32 _name) public {
         require(ownerToThunderEggId[msg.sender] == 0, "Thor has already blessed you with a ThunderEgg!");
 
-        updatePool(_pid);
+        updateSacredGrove(_groveId);
 
         // Thunder 🥚 time!
-        uint256 tokenId = _mint(_pid, msg.sender, _name);
+        uint256 tokenId = _mint(_groveId, msg.sender, _name);
 
-        PoolInfo storage pool = poolInfo[_pid];
-        ThunderEggInfo storage info = thunderEggInfoMapping[_pid][tokenId];
+        SacredGrove storage pool = sacredGrove[_groveId];
+        ThunderEggInfo storage info = thunderEggInfoMapping[_groveId][tokenId];
 
         // credit the staked amount
         if (_amount > 0) {
@@ -271,22 +289,22 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         }
 
         info.rewardDebt = info.amount.mul(pool.accLavaPerShare).div(1e18);
-        emit Deposit(msg.sender, _pid, _amount);
+        emit Deposit(msg.sender, _groveId, _amount);
     }
 
-    // Withdraw LP tokens from MasterChef.
-    function withdraw(uint256 _pid) public {
+    // Withdraw LP tokens from ThunderEgg.
+    function withdraw(uint256 _groveId) public {
 
         uint256 tokenId = ownerToThunderEggId[msg.sender];
         require(tokenId != 0, "No ThunderEgg!");
 
-        updatePool(_pid);
+        updateSacredGrove(_groveId);
 
-        PoolInfo storage pool = poolInfo[_pid];
-        ThunderEggInfo storage info = thunderEggInfoMapping[_pid][tokenId];
+        SacredGrove storage pool = sacredGrove[_groveId];
+        ThunderEggInfo storage info = thunderEggInfoMapping[_groveId][tokenId];
 
         // burn the token - send all rewards and LP back!
-        _burn(_pid, tokenId);
+        _burn(_groveId, tokenId);
 
         // pay out rewards from the ThunderEgg
         uint256 pending = info.amount.mul(pool.accLavaPerShare).div(1e18).sub(info.rewardDebt);
@@ -298,7 +316,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         pool.lpToken.safeTransfer(address(msg.sender), info.amount);
 
         info.rewardDebt = info.amount.mul(pool.accLavaPerShare).div(1e18);
-        emit Withdraw(msg.sender, _pid, info.amount);
+        emit Withdraw(msg.sender, _groveId, info.amount);
     }
 
     // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
@@ -363,10 +381,10 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         thunderEggIdToName[_tokenId] = _name;
     }
 
-    function _mint(uint256 _pid, address _to, bytes32 _name) internal returns (uint256) {
+    function _mint(uint256 _groveId, address _to, bytes32 _name) internal returns (uint256) {
         require(_to != address(0), "ERC721: mint to the zero address");
 
-        PoolInfo storage pool = poolInfo[_pid];
+        SacredGrove storage pool = sacredGrove[_groveId];
         require(pool.totalSupply.add(1) <= pool.maxSupply, "No more ThunderEggs!");
 
         tokenPointer = tokenPointer.add(1);
@@ -404,7 +422,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         return Strings.strConcat(baseTokenURI, Strings.uint2str(_tokenId));
     }
 
-    function _burn(uint256 _pid, uint256 _tokenId) internal {
+    function _burn(uint256 _groveId, uint256 _tokenId) internal {
         require(_exists(_tokenId), "must exist");
 
         address owner = thunderEggIdToOwner[_tokenId];
@@ -412,7 +430,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         require(owner == msg.sender, "Must own the egg!");
         require(owner != address(0), "ERC721_ZERO_OWNER_ADDRESS");
 
-        PoolInfo storage pool = poolInfo[_pid];
+        SacredGrove storage pool = sacredGrove[_groveId];
 
         thunderEggIdToOwner[_tokenId] = address(0);
         ownerToThunderEggId[msg.sender] = 0;
