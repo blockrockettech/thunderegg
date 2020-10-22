@@ -20,9 +20,10 @@ import "@nomiclabs/buidler/console.sol";
 
 // In the fertile sacred grove under the lightning tree ThunderEggs are spawned!
 //
-// Note that it's ownable and the owner wields tremendous power.
+// ThunderEggs are controlled by a god that wields tremendous power. You have been warned!
 //
 // Don't mess with the Gods especially the God of Thunder!
+//
 contract ThunderEgg is Godable, IERC721Token, ERC165 {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
