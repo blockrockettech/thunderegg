@@ -106,6 +106,9 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // Token symbol
     string public symbol = "TEGG";
 
+    // total supply across sacred groves
+    uint256 public totalSupply;
+
     // Mapping of tokenId => owner
     mapping(uint256 => address) internal thunderEggIdToOwner;
     mapping(uint256 => uint256) internal thunderEggIdToBirth;
@@ -270,8 +273,8 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         console.log("grove.accLavaPerShare", grove.accLavaPerShare);
     }
 
-    // Deposit LP tokens, mint the ThunderEgg and set allocations...
-    function deposit(uint256 _groveId, uint256 _amount, bytes32 _name) public {
+    // mint the ThunderEgg by depositing LP tokens,
+    function spawn(uint256 _groveId, uint256 _amount, bytes32 _name) public {
         require(ownerToThunderEggId[msg.sender] == 0, "Thor has already blessed you with a ThunderEgg!");
 
         updateSacredGrove(_groveId);
@@ -292,8 +295,8 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         emit Deposit(msg.sender, _groveId, _amount);
     }
 
-    // Withdraw LP tokens from ThunderEgg.
-    function withdraw(uint256 _groveId) public {
+    // Destroy and get all the tokens back - bye bye NFT!
+    function destroy(uint256 _groveId) public {
 
         uint256 tokenId = ownerToThunderEggId[msg.sender];
         require(tokenId != 0, "No ThunderEgg!");
@@ -402,6 +405,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
 
         // MetaData
         pool.totalSupply = pool.totalSupply.add(1);
+        totalSupply = totalSupply.add(1);
 
         // Single Transfer event for a single token
         emit Transfer(address(0), _to, tokenId);
@@ -436,6 +440,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         ownerToThunderEggId[msg.sender] = 0;
 
         pool.totalSupply = pool.totalSupply.sub(1);
+        totalSupply = totalSupply.sub(1);
 
         emit Transfer(
             owner,

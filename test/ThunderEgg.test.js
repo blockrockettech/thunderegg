@@ -51,9 +51,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       await this.stakingToken.transfer(alice, ONE_THOUSAND_TOKENS, {from: thor});
       await this.stakingToken.transfer(bob, ONE_THOUSAND_TOKENS, {from: thor});
       await this.stakingToken.transfer(carol, ONE_THOUSAND_TOKENS, {from: thor});
-    });
 
-    it('should spawn eggs when LP stones are offered to the gods', async () => {
       this.thunderEgg = await ThunderEgg.new(
         this.lava.address,
         LAVA_PER_BLOCK,
@@ -66,27 +64,66 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       await this.thunderEgg.addSacredGrove(ONE, this.stakingToken.address, true, {from: thor});
 
-      const groveId = (await this.thunderEgg.sacredGroveLength()).sub(ONE);
+      this.groveId = (await this.thunderEgg.sacredGroveLength()).sub(ONE);
 
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
+    });
+
+    it('should spawn eggs when LP stones are offered to the gods', async () => {
 
       await time.advanceBlockTo('50');
 
-      await this.thunderEgg.deposit(groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+      await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
 
-      (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal('1');
+      (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
 
       await time.advanceBlockTo('55');
 
       await this.thunderEgg.massUpdateSacredGroves();
 
-      // (address _owner, uint256 _birth, uint256 _lp, uint256 _lava, bytes32 _name)
-      const {_owner, _birth, _lp, _lava, _name} = await this.thunderEgg.thunderEggStats(groveId, ONE);
+      const {_owner, _birth, _lp, _lava, _name} = await this.thunderEgg.thunderEggStats(this.groveId, ONE);
       _owner.should.be.equal(alice);
       _birth.should.be.bignumber.equal('51'); // first block after start
       _lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
       _lava.should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(5)));
       _name.should.be.equal(ethers.utils.formatBytes32String("test"));
+    });
+
+    it('should spawn and release Lava and LP stones when destroyed', async () => {
+
+      await time.advanceBlockTo('150');
+
+      await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+
+      (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ONE);
+
+      await time.advanceBlockTo('155');
+
+      await this.thunderEgg.massUpdateSacredGroves();
+
+      const {_owner, _lp, _lava} = await this.thunderEgg.thunderEggStats(this.groveId, ONE);
+      _owner.should.be.equal(alice);
+      _lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
+      _lava.should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(5)));
+
+      // let's smash the egg!
+
+      (await this.lava.balanceOf(alice)).should.be.bignumber.equal(ZERO);
+      (await this.stakingToken.balanceOf(alice)).should.be.bignumber.equal(ZERO);
+
+      await this.thunderEgg.destroy(this.groveId, {from: alice});
+
+      // one more block passed when destroying so 5 + 1 x lava per block
+      (await this.lava.balanceOf(alice)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(6)));
+      (await this.stakingToken.balanceOf(alice)).should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
+      (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ZERO);
+      (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ZERO);
+
+      const statsPostDestroy = await this.thunderEgg.thunderEggStats(this.groveId, ONE);
+      statsPostDestroy._owner.should.be.equal('0x0000000000000000000000000000000000000000');
+      statsPostDestroy._lp.should.be.bignumber.equal(ZERO);
+      statsPostDestroy._lava.should.be.bignumber.equal(ZERO);
     });
 
   });
@@ -169,7 +206,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       // spawn a thunderegg
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
-      await this.thunderEgg.deposit(this.pid, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("something dodgy"), {from: alice});
+      await this.thunderEgg.spawn(this.pid, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("something dodgy"), {from: alice});
 
       // only thor can set names
       await this.thunderEgg.setName(TOKEN_ID_ONE, ethers.utils.formatBytes32String('Luke'), {from: thor});
@@ -178,10 +215,10 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       stats._name.should.be.equal(ethers.utils.formatBytes32String('Luke'));
     });
 
-    it('can only withdraw if a egg exists', async () => {
+    it('can only destroy if a egg exists', async () => {
 
       await expectRevert(
-        this.thunderEgg.withdraw(new BN('1111'), {from: thor}),
+        this.thunderEgg.destroy(new BN('1111'), {from: thor}),
         'No ThunderEgg!'
       );
     });
@@ -190,11 +227,11 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
 
       // create first thunderegg
-      await this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice});
+      await this.thunderEgg.spawn(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice});
 
       // not allowed a second!
       await expectRevert(
-       this.thunderEgg.deposit(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice}),
+       this.thunderEgg.spawn(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice}),
        'Thor has already blessed you with a ThunderEgg!'
       );
 
