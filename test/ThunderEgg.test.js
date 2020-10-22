@@ -17,7 +17,7 @@ const to18DP = (value) => {
 contract('ThunderEgg', ([thor, alice, bob, carol]) => {
   const ONE_THOUSAND_TOKENS = to18DP('1000');
   const ONE = new BN('1');
-  const TOKEN_ID_ONE = new BN('1');
+  const EGG_ID_ONE = new BN('1');
   const ZERO = new BN('0');
 
   const LAVA_PER_BLOCK = to18DP('1');
@@ -76,6 +76,8 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.exists(EGG_ID_ONE)).should.be.equal(true);
 
       await time.advanceBlockTo('55');
 
@@ -97,6 +99,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
       (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.exists(EGG_ID_ONE)).should.be.equal(true);
 
       await time.advanceBlockTo('155');
 
@@ -117,8 +120,10 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       // one more block passed when destroying so 5 + 1 x lava per block
       (await this.lava.balanceOf(alice)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(6)));
       (await this.stakingToken.balanceOf(alice)).should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
+
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ZERO);
       (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ZERO);
+      (await this.thunderEgg.exists(EGG_ID_ONE)).should.be.equal(false);
 
       const statsPostDestroy = await this.thunderEgg.thunderEggStats(this.groveId, ONE);
       statsPostDestroy._owner.should.be.equal('0x0000000000000000000000000000000000000000');
@@ -209,9 +214,9 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       await this.thunderEgg.spawn(this.pid, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("something dodgy"), {from: alice});
 
       // only thor can set names
-      await this.thunderEgg.setName(TOKEN_ID_ONE, ethers.utils.formatBytes32String('Luke'), {from: thor});
+      await this.thunderEgg.setName(EGG_ID_ONE, ethers.utils.formatBytes32String('Luke'), {from: thor});
 
-      const stats = await this.thunderEgg.thunderEggStats(this.pid, TOKEN_ID_ONE);
+      const stats = await this.thunderEgg.thunderEggStats(this.pid, EGG_ID_ONE);
       stats._name.should.be.equal(ethers.utils.formatBytes32String('Luke'));
     });
 
