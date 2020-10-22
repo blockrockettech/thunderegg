@@ -1,5 +1,5 @@
 <template>
-    <article class="content has-background-primary">
+    <article class="content has-background-primary" style="margin-bottom: 200px">
         <section class="hero is-primary">
             <div class="hero-body">
                 <div class="container">
@@ -8,19 +8,18 @@
             </div>
         </section>
 
-        <section>
+        <section class="container">
             <div class="columns is-multiline has-text-centered">
                 <div class="column is-one-third">
-                    <thunder-egg-p5 egg-id="1" owner="0x818Ff73A5d881C27A945bE944973156C01141232"></thunder-egg-p5>
+                    <thunder-egg-wrapper egg-id="1" lava="23423" age="11123" lp-stones="44.33">
+                        <thunder-egg-p5 egg-id="1" owner="0x818Ff73A5d881C27A945bE944973156C01141232"></thunder-egg-p5>
+                    </thunder-egg-wrapper>
                 </div>
                 <div class="column is-one-third">
                     <thunder-egg-p5 egg-id="2" owner="0x4D20F13e70320e9C11328277F2Cc0dC235A74F27"></thunder-egg-p5>
                 </div>
                 <div class="column is-one-third">
                     <thunder-egg-p5 egg-id="3" owner="0x84FF65C60Ff63a6eedCDDD82ad139e28da82FCDc"></thunder-egg-p5>
-                </div>
-                <div class="column is-one-third">
-                    <thunder-egg-p5 egg-id="4" owner="0x3f8C962eb167aD2f80C72b5F933511CcDF0719D4"></thunder-egg-p5>
                 </div>
             </div>
         </section>
@@ -31,9 +30,10 @@
   import axios from 'axios';
   import {onMounted, ref} from 'vue';
   import ThunderEggP5 from './components/ThunderEggP5';
+  import ThunderEggWrapper from './components/ThunderEggWrapper';
 
   export default {
-    components: {ThunderEggP5},
+    components: {ThunderEggWrapper, ThunderEggP5},
     setup() {
       let artists = ref([]);
       let disabledArtists = ref(null);
@@ -126,6 +126,7 @@
     $dark: #14171A;
     $light: #e6e2d3;
 
+    $card-radius: .5 rem;
 
     @import '~bulma';
 </style>

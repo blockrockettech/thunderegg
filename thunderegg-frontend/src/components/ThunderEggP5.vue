@@ -10,17 +10,10 @@
     created() {
       const sketch = (s) => {
 
-        let tokenData = {
-          hashes: [this.owner]
-        };
-
-        let numHashes = tokenData.hashes.length;
         let hashPairs = [];
 
-        for (let i = 0; i < numHashes; i++) {
-          for (let j = 0; j < 32; j++) {
-            hashPairs.push(tokenData.hashes[i].slice(2 + (j * 2), 4 + (j * 2)));
-          }
+        for (let j = 0; j < 32; j++) {
+          hashPairs.push(this.owner.slice(2 + (j * 2), 4 + (j * 2)));
         }
 
         let hashData = hashPairs.map(x => {
@@ -31,8 +24,8 @@
         let colorB;
         let colorC;
 
-        let height = 200;
-        let width = 200;
+        let height = 400;
+        let width = 400;
 
         s.setup = () => {
           // Create the canvas
