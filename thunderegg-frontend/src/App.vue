@@ -8,24 +8,17 @@
             </div>
         </section>
 
-        <div class="has-text-centered has-brand-text">
-            {{ account }}
+        <div class="has-text-centered">
 
-            <br/>
 
-            <button class="button is-warning has-text-primary is-uppercase has-brand-text" @click="connect">
+            <button class="button is-warning has-text-primary is-uppercase has-brand-text" @click="connect"
+                    v-if="!account">
                 Connect wallet 🦊
             </button>
+            <section v-else class="has-brand-text">
+                Welcome {{ account.substring(0, 8) + '...' }}
+            </section>
 
-            <o-button size="medium" variant="primary" class="has-text-primary is-uppercase has-brand-text" @click="isImageModalActive = true">
-                Open modal
-            </o-button>
-
-            <o-modal v-model:active="isImageModalActive">
-                <p style="text-align: center">
-                    <img src="https://avatars2.githubusercontent.com/u/66300512?s=200&v=4" />
-                </p>
-            </o-modal>
         </div>
 
         <section class="container" style="margin-top: 200px;">
@@ -44,6 +37,17 @@
                 </div>
             </div>
         </section>
+
+        <o-button size="medium" variant="primary" class="has-text-primary is-uppercase has-brand-text"
+                  @click="isImageModalActive = true">
+            Open modal
+        </o-button>
+
+        <o-modal v-model:active="isImageModalActive">
+            <p style="text-align: center">
+                <img src="https://avatars2.githubusercontent.com/u/66300512?s=200&v=4"/>
+            </p>
+        </o-modal>
     </article>
 </template>
 
@@ -62,7 +66,8 @@
 
       const connect = () => store.dispatch('bootstrap');
 
-      onMounted(async () => {});
+      onMounted(async () => {
+      });
 
       return {
         connect,
