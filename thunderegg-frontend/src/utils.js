@@ -1,4 +1,4 @@
-export function getContractAddressFromTruffleConf(truffleConf, chainId) {
+export function getContractAddressFromConf(truffleConf, chainId) {
   if (!truffleConf || !chainId) return "";
   const { networks } = truffleConf;
   if (networks[chainId.toString()]) {

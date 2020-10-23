@@ -1,7 +1,7 @@
 import { createStore } from 'vuex';
 import {ethers} from 'ethers';
 
-import {getContractAddressFromTruffleConf} from "@/utils";
+import {getContractAddressFromConf} from "@/utils";
 import ThunderEggContract from '../contracts/ThunderEgg.json';
 
 export default createStore({
@@ -28,6 +28,7 @@ export default createStore({
   actions: {
     async bootstrap({commit}) {
       if (window.ethereum) {
+
         await window.ethereum.enable();
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
@@ -40,7 +41,7 @@ export default createStore({
         commit('storeChain', chain);
 
         const thunderEgg = new ethers.Contract(
-          getContractAddressFromTruffleConf(ThunderEggContract, chain.chainId),
+          getContractAddressFromConf(ThunderEggContract, chain.chainId),
           ThunderEggContract.abi,
           signer
         );
@@ -52,9 +53,9 @@ export default createStore({
         console.log('Bootstrapped with account', accounts[0]);
       } else {
         console.error('Unable to bootstrap as window.ethereum is undefined');
+        alert('Unable to bootstrap as window.ethereum is undefined');
       }
     }
   },
-  modules: {
-  }
+  modules: {}
 })

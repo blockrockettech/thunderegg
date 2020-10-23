@@ -7,11 +7,19 @@
                 </div>
             </div>
         </section>
-      <button class="button is-secondary has-text-white is-size-5" @click="connect">
-        Connect
-      </button>
 
-        <section class="container">
+        <div class="has-text-centered">
+            {{ account }}
+
+            <br/>
+
+            <button class="button is-secondary has-text-white is-size-5" @click="connect">
+                Connect
+            </button>
+        </div>
+        
+        <section class="container" style="margin-top: 200px;">
+            <h2>Gallery</h2>
             <div class="columns is-multiline has-text-centered">
                 <div class="column is-one-third">
                     <thunder-egg-wrapper egg-id="1" lava="23423" age="11123" lp-stones="44.33">
@@ -30,7 +38,7 @@
 </template>
 
 <script>
-  import {onMounted} from 'vue';
+  import {onMounted, computed} from 'vue';
   import store from './store';
   import ThunderEggP5 from './components/ThunderEggP5';
   import ThunderEggWrapper from './components/ThunderEggWrapper';
@@ -38,14 +46,17 @@
   export default {
     components: {ThunderEggWrapper, ThunderEggP5},
     setup() {
+
+      const account = computed(() => store.state.account);
+
+      const connect = () => store.dispatch('bootstrap');
+
       onMounted(async () => {});
 
-      const connect = () => {
-        store.dispatch('bootstrap');
-      }
 
       return {
-        connect
+        connect,
+        account
       };
     }
   };
