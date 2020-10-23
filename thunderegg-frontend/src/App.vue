@@ -27,78 +27,16 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  import {onMounted, ref} from 'vue';
+  import {onMounted} from 'vue';
   import ThunderEggP5 from './components/ThunderEggP5';
   import ThunderEggWrapper from './components/ThunderEggWrapper';
 
   export default {
     components: {ThunderEggWrapper, ThunderEggP5},
     setup() {
-      let artists = ref([]);
-      let disabledArtists = ref(null);
-      let artistsWithoutCoverImg = ref(null);
-      let artistsWithoutProfileImg = ref(null);
-      let artistTimeStamp = ref(null);
-      let artistsEnabled = ref(null);
+      onMounted(async () => {});
 
-
-      function artistsUpdatedInLast24Hrs(artistTimeStamp) {
-        let ts = Math.round(new Date().getTime() / 1000);
-        let tsYesterday = ts - (24 * 3600);
-        if (artistTimeStamp > (tsYesterday * 1000)) {
-          return artists;
-        }
-      }
-
-      function artistsEnabledInLastWeek(artistsEnabled, enabledTimestamp) {
-        let tsLastWeek = new Date().getTime() - 604800000;
-        if (artistsEnabled && enabledTimestamp >= tsLastWeek) {
-          return artists;
-        }
-      }
-
-      function percentageOfArtists(partialArtistCount) {
-        return `${((partialArtistCount / artists.value.length) * 100).toFixed(2)} %`;
-      }
-
-      onMounted(async () => {
-        const {status, data} = await axios.get('https://us-central1-known-origin-io.cloudfunctions.net/main/api/artist/collective');
-        // console.log(result);
-        if (status === 200) {
-          artists.value = data;
-
-          disabledArtists.value = artists.value.filter(artist => !artist.enabled);
-
-          console.log('disabledArtists', disabledArtists);
-
-          artistsWithoutCoverImg.value = artists.value.filter(artist => !artist.coverImageUrl);
-
-          console.log('artistsWithoutCoverImg', artistsWithoutCoverImg);
-
-          artistsWithoutProfileImg.value = artists.value.filter(artist => !artist.imageUrl);
-
-          console.log('artistsWithoutProfileImg', artistsWithoutProfileImg);
-
-          artistTimeStamp.value = artists.value.filter(artist => artistsUpdatedInLast24Hrs(artist.updated));
-
-          console.log('artistTimeStamp', artistTimeStamp);
-
-          artistsEnabled.value = artists.value.filter(artist => artistsEnabledInLastWeek(artist.enabled, artist.enabledTimestamp));
-
-          console.log('artistsEnabled', artistsEnabled);
-        }
-      });
-
-      return {
-        artists,
-        disabledArtists,
-        artistsWithoutCoverImg,
-        artistsWithoutProfileImg,
-        percentageOfArtists,
-        artistTimeStamp,
-        artistsEnabled,
-      };
+      return {};
     }
   };
 </script>
@@ -125,8 +63,6 @@
 
     $dark: #14171A;
     $light: #e6e2d3;
-
-    $card-radius: .5 rem;
 
     @import '~bulma';
 </style>

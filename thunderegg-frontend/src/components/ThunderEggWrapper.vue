@@ -3,7 +3,7 @@
         <div class="card-image">
             <slot>🥚</slot>
         </div>
-        <div class="card-content has-background-grey-lighter has-text-primary">
+        <div class="card-content has-background-grey-lighter has-text-dark">
             <div class="content has-text-left">
                 <div class="columns is-multiline">
                     <div class="column is-half">ID {{ eggId }}</div>
