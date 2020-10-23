@@ -176,9 +176,6 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     }
 
     function end(uint256 _groveId, uint256 _endBlock, bool _withUpdate) public onlyGod {
-        // as only god can call I wouldn't have this check. Problem is it's hards to predict when a tx will be mined
-        require(_endBlock > block.number, "Must be in the future");
-
         SacredGrove storage grove = sacredGrove[_groveId];
         grove.endBlock = _endBlock;
 
