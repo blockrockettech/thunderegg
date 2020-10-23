@@ -18,7 +18,9 @@
             <section v-else class="has-brand-text">
                 Welcome {{ account.substring(0, 8) + '...' }}
             </section>
-
+            <section v-if="hasThunderEgg === false" class="is-size-1 has-text-danger" style="margin-top: 100px;">
+                You have no ThunderEgg. *sad face*
+            </section>
         </div>
 
         <section class="container" style="margin-top: 200px;">
@@ -63,6 +65,7 @@
 
       const isImageModalActive = ref(false);
       const account = computed(() => store.state.account);
+      const hasThunderEgg = computed(() => store.state.hasThunderEgg);
 
       const connect = () => store.dispatch('bootstrap');
 
@@ -72,6 +75,7 @@
       return {
         connect,
         account,
+        hasThunderEgg,
         isImageModalActive,
       };
     }

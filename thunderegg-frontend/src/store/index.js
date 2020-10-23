@@ -1,4 +1,4 @@
-import { createStore } from 'vuex';
+import {createStore} from 'vuex';
 import {ethers} from 'ethers';
 
 import {getContractAddressFromConf} from "@/utils";
@@ -10,6 +10,8 @@ export default createStore({
     contracts: null,
     chain: null,
     signer: null,
+    myThunderEggStats: null,
+    hasThunderEgg: null,
   },
   mutations: {
     storeSigner(state, signer) {
@@ -23,10 +25,16 @@ export default createStore({
     },
     storeChain(state, chain) {
       state.chain = chain;
-    }
+    },
+    storeMyThunderEggStats(state, myThunderEggStats) {
+      state.myThunderEggStats = myThunderEggStats;
+    },
+    storeHasThunderEgg(state, hasThunderEgg) {
+      state.hasThunderEgg = hasThunderEgg;
+    },
   },
   actions: {
-    async bootstrap({commit}) {
+    async bootstrap({commit, dispatch}) {
       if (window.ethereum) {
 
         await window.ethereum.enable();
@@ -51,11 +59,19 @@ export default createStore({
         });
 
         console.log('Bootstrapped with account', accounts[0]);
+
+        dispatch('loadThunderEgg');
       } else {
         console.error('Unable to bootstrap as window.ethereum is undefined');
         alert('Unable to bootstrap as window.ethereum is undefined');
       }
-    }
+    },
+    async loadThunderEgg({commit, state}) {
+      const {thunderEgg} = state.contracts;
+
+      const hasThunderEgg = await thunderEgg.balanceOf(state.account);
+      commit('storeHasThunderEgg', hasThunderEgg.eq(ethers.BigNumber.from('1')));
+    },
   },
   modules: {}
-})
+});
