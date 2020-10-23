@@ -1,12 +1,15 @@
 <template>
     <article class="content has-background-primary" style="margin-bottom: 200px">
-        <section class="hero is-primary">
+        <section class="hero is-primary has-text-centered">
             <div class="hero-body">
                 <div class="container">
                     <h1 class="is-size-1 has-text-primary-light has-text-centered pt-3 has-brand-text">ThunderEgg</h1>
                 </div>
             </div>
         </section>
+      <button class="button is-secondary has-text-white is-size-5" @click="connect">
+        Connect
+      </button>
 
         <section class="container">
             <div class="columns is-multiline has-text-centered">
@@ -28,6 +31,7 @@
 
 <script>
   import {onMounted} from 'vue';
+  import store from './store';
   import ThunderEggP5 from './components/ThunderEggP5';
   import ThunderEggWrapper from './components/ThunderEggWrapper';
 
@@ -36,7 +40,13 @@
     setup() {
       onMounted(async () => {});
 
-      return {};
+      const connect = () => {
+        store.dispatch('bootstrap');
+      }
+
+      return {
+        connect
+      };
     }
   };
 </script>
