@@ -8,16 +8,26 @@
             </div>
         </section>
 
-        <div class="has-text-centered">
+        <div class="has-text-centered has-brand-text">
             {{ account }}
 
             <br/>
 
-            <button class="button is-secondary has-text-white is-size-5" @click="connect">
-                Connect
+            <button class="button is-warning has-text-primary is-uppercase has-brand-text" @click="connect">
+                Connect wallet 🦊
             </button>
+
+            <o-button size="medium" variant="primary" class="has-text-primary is-uppercase has-brand-text" @click="isImageModalActive = true">
+                Open modal
+            </o-button>
+
+            <o-modal v-model:active="isImageModalActive">
+                <p style="text-align: center">
+                    <img src="https://avatars2.githubusercontent.com/u/66300512?s=200&v=4" />
+                </p>
+            </o-modal>
         </div>
-        
+
         <section class="container" style="margin-top: 200px;">
             <h2>Gallery</h2>
             <div class="columns is-multiline has-text-centered">
@@ -38,7 +48,7 @@
 </template>
 
 <script>
-  import {onMounted, computed} from 'vue';
+  import {onMounted, computed, ref} from 'vue';
   import store from './store';
   import ThunderEggP5 from './components/ThunderEggP5';
   import ThunderEggWrapper from './components/ThunderEggWrapper';
@@ -47,16 +57,17 @@
     components: {ThunderEggWrapper, ThunderEggP5},
     setup() {
 
+      const isImageModalActive = ref(false);
       const account = computed(() => store.state.account);
 
       const connect = () => store.dispatch('bootstrap');
 
       onMounted(async () => {});
 
-
       return {
         connect,
-        account
+        account,
+        isImageModalActive,
       };
     }
   };
