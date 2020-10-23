@@ -187,14 +187,6 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       sacredGrove.endBlock.should.be.bignumber.equal('1000');
     });
 
-    it('ensure endblock is greater than current block', async () => {
-
-      await expectRevert(
-        this.thunderEgg.end(this.pid, new BN('0'), false, {from: thor}),
-        'Must be in the future'
-      );
-    });
-
     it('only god should be able to set base token', async () => {
 
       await expectRevert(
