@@ -131,6 +131,12 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       statsPostDestroy._lava.should.be.bignumber.equal(ZERO);
     });
 
+    it('reverts when amount is zero', async () => {
+      await expectRevert(
+        this.thunderEgg.spawn(this.groveId, ZERO, ethers.utils.formatBytes32String("test"), {from: alice}),
+        "You must sacrifice your LP tokens to the gods!"
+      );
+    });
   });
 
   context('God operations', () => {

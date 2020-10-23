@@ -270,7 +270,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // mint the ThunderEgg by depositing LP tokens,
     function spawn(uint256 _groveId, uint256 _amount, bytes32 _name) public {
         require(ownerToThunderEggId[msg.sender] == 0, "Thor has already blessed you with a ThunderEgg!");
-        require(_amount > 0, "You must sacrifice your LP tokens to the GODs!");
+        require(_amount > 0, "You must sacrifice your LP tokens to the gods!");
 
         updateSacredGrove(_groveId);
 
