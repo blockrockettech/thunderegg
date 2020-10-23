@@ -132,7 +132,7 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
     });
 
   });
-  
+
   context('God operations', () => {
     beforeEach(async () => {
       this.lava = await LavaToken.new(ZERO, thor, thor, {from: thor});
@@ -153,13 +153,14 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
     });
 
     it('should only allow god to addToPools', async () => {
+      this.newStakingToken = await MockERC20.new('LPToken', 'LP', ONE_THOUSAND_TOKENS.mul(new BN('4')), {from: thor});
 
       await expectRevert(
-        this.thunderEgg.addSacredGrove(new BN('100'), this.stakingToken.address, false, {from: alice}),
+        this.thunderEgg.addSacredGrove(new BN('100'), this.newStakingToken.address, false, {from: alice}),
         'Godable: caller is not the god'
       );
 
-      await this.thunderEgg.addSacredGrove(new BN('100'), this.stakingToken.address, false, {from: thor});
+      await this.thunderEgg.addSacredGrove(new BN('100'), this.newStakingToken.address, false, {from: thor});
     });
 
     it('should only allow god to set allocation points', async () => {
