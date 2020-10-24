@@ -1,5 +1,5 @@
 <template>
-    <div :id="eggId"></div>
+    <div :id="eggId" style="height: 400px; width: 400px;"></div>
 </template>
 
 <script>

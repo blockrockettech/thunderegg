@@ -3,6 +3,9 @@ import {ethers} from 'ethers';
 
 import {getContractAddressFromConf} from "@/utils";
 import ThunderEggContract from '../contracts/ThunderEgg.json';
+import StakingTokenContract from '../contracts/ERC20.json';
+
+const MAX_UINT256 = ethers.BigNumber.from('2').pow(ethers.BigNumber.from('256')).sub(ethers.BigNumber.from('1'));
 
 export default createStore({
   state: {
@@ -10,6 +13,9 @@ export default createStore({
     contracts: null,
     chain: null,
     signer: null,
+    stakingTokenBalance: null,
+    hasStakingTokenBalance: null,
+    hasStakingTokenAllowance: null,
     myThunderEggStats: null,
     hasThunderEgg: null,
   },
@@ -31,6 +37,13 @@ export default createStore({
     },
     storeHasThunderEgg(state, hasThunderEgg) {
       state.hasThunderEgg = hasThunderEgg;
+    },
+    storeStakingTokenBalance(state, stakingTokenBalance) {
+      state.hasStakingTokenBalance = stakingTokenBalance.gt(ethers.BigNumber.from('0'));
+      state.stakingTokenBalance = ethers.utils.formatEther(stakingTokenBalance);
+    },
+    storeHasStakingTokenAllowance(state, hasStakingTokenAllowance) {
+      state.hasStakingTokenAllowance = hasStakingTokenAllowance;
     },
   },
   actions: {
@@ -54,13 +67,26 @@ export default createStore({
           signer
         );
 
+        const stakingToken = new ethers.Contract(
+          getContractAddressFromConf(StakingTokenContract, chain.chainId.toString()),
+          StakingTokenContract.abi,
+          signer
+        );
+
         commit('storeContracts', {
-          thunderEgg
+          thunderEgg,
+          stakingToken,
         });
 
         console.log('Bootstrapped with account', accounts[0]);
 
         dispatch('loadThunderEgg');
+
+        const stakingTokenBalance = await stakingToken.balanceOf(accounts[0]);
+        commit('storeStakingTokenBalance', stakingTokenBalance);
+
+        const stakingTokenAllowance = await stakingToken.allowance(accounts[0], thunderEgg.address);
+        commit('storeHasStakingTokenAllowance', stakingTokenAllowance.gte(stakingTokenBalance));
       } else {
         console.error('Unable to bootstrap as window.ethereum is undefined');
         alert('Unable to bootstrap as window.ethereum is undefined');
@@ -71,6 +97,19 @@ export default createStore({
 
       const hasThunderEgg = await thunderEgg.balanceOf(state.account);
       commit('storeHasThunderEgg', hasThunderEgg.eq(ethers.BigNumber.from('1')));
+    },
+    async approveStakingTokens({state}) {
+      if (state.contracts && state.account) {
+        const {stakingToken, thunderEgg} = state.contracts;
+
+        const tx = await stakingToken.approve(
+          thunderEgg.address,
+          MAX_UINT256,
+          {from: state.account}
+        );
+
+        await tx.wait(1);
+      }
     },
   },
   modules: {}
