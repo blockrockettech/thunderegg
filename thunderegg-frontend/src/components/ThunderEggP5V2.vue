@@ -1,7 +1,5 @@
 <template>
-    <div :id="`holder-${eggId}`">
-        <div :id="eggId"></div>
-    </div>
+    <div :id="`egg-${eggId}`"></div>
 </template>
 
 <script>
@@ -35,15 +33,27 @@
         // eslint-disable-next-line no-unused-vars
         let brightness = age / 3000 * 128;
 
+        // eslint-disable-next-line no-unused-vars
         let height = 400;
         let width = 400;
 
+        function centerCanvas(canvas) {
+          var x = (s.windowWidth - width) / 2;
+          var y = (s.windowHeight - height) / 2;
+          canvas.position(x, y);
+        }
+
 
         s.setup = () => {
-          let cnv = s.createCanvas(height,width);
-          cnv.position(0, 0);
+          // eslint-disable-next-line no-unused-vars
+          let canvas = s.createCanvas(height,width);
 
-          // cnv.parent(`holder-${this.eggId}`);
+          centerCanvas(canvas);
+          // Move the canvas so it’s inside our <div id="sketch-holder">.
+          // canvas.parent(`egg-${this.eggId}`);
+          // cnv.position(0, 0);
+
+          // canvas.parent(`xyz`);
 
           s.colorMode(s.HSB, 255);
           s.background(200);
@@ -54,7 +64,7 @@
 
           console.log(s);
         };
-
+        
         s.draw = () => {
           for (let i = 100; i > 0; i--) {
             let fillColor;
@@ -223,7 +233,7 @@
         };
       };
 
-      new P5(sketch, this.eggId);
+      new P5(sketch, `xyz`);
     }
   };
 </script>

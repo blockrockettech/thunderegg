@@ -96,7 +96,7 @@
                         </section>
                     </section>
 
-                    <div v-if="account">
+                    <div v-if="account" id="xyz">
                         <thunder-egg-wrapper egg-id="999" lava="23423" age="11123" lp-stones="44.33">
                             <thunder-egg-p5-v2
                                     egg-id="999"
