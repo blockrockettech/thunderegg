@@ -12,13 +12,35 @@
         <section class="content container">
             <div class="columns">
                 <div class="column is-half has-brand-text is-size-5">
-                    <p>Visit the <o-tooltip label="Uniswap LAVA <> ETH Pair" style="text-decoration: underline; text-decoration-style: wavy;" variant="info">unicorn</o-tooltip> in the fertile lands where ETH font meets the ancient lava to mine magical <o-tooltip label="UniV2 ERC20 tokens" style="text-decoration: underline; text-decoration-style: wavy;" variant="info">LP stones.</o-tooltip></p>
+                    <p>Visit the
+                        <o-tooltip label="Uniswap LAVA <> ETH Pair"
+                                   style="text-decoration: underline; text-decoration-style: wavy;" variant="info">
+                            unicorn
+                        </o-tooltip>
+                        in the fertile lands where ETH font meets the ancient lava to mine magical
+                        <o-tooltip label="UniV2 ERC20 tokens"
+                                   style="text-decoration: underline; text-decoration-style: wavy;" variant="info">LP
+                            stones.
+                        </o-tooltip>
+                    </p>
 
-                    <p>Journey to the <o-tooltip label="This smart contract & dApp" style="text-decoration: underline; text-decoration-style: wavy;" variant="info">sacred grove</o-tooltip> and offer the LP stones up to spawn a mystical ThunderEgg!</p>
+                    <p>Journey to the
+                        <o-tooltip label="This smart contract & dApp"
+                                   style="text-decoration: underline; text-decoration-style: wavy;" variant="info">
+                            sacred grove
+                        </o-tooltip>
+                        and offer the LP stones up to spawn a mystical ThunderEgg!
+                    </p>
 
-                    <p>The quest can only be attempted <o-tooltip label="One ETH account only" style="text-decoration: underline; text-decoration-style: wavy;" variant="info">once</o-tooltip> so tread carefully.</p>
+                    <p>The quest can only be attempted
+                        <o-tooltip label="One ETH account only"
+                                   style="text-decoration: underline; text-decoration-style: wavy;" variant="info">once
+                        </o-tooltip>
+                        so tread carefully.
+                    </p>
 
-                    <p>Over time if left to mature the ThunderEgg will increase it’s lava energy hour by hour. The older and more lava the brighter and more beautiful they appear…</p>
+                    <p>Over time if left to mature the ThunderEgg will increase it’s lava energy hour by hour. The older
+                        and more lava the brighter and more beautiful they appear…</p>
 
                     <p>Be warned. To reap the power of the ThunderEgg it must be destroyed.</p>
                 </div>
@@ -55,7 +77,8 @@
                                 </div>
                             </div>
                         </section>
-                        <section v-else-if="account && hasStakingTokenBalance && hasStakingTokenAllowance" class="is-size-1"
+                        <section v-else-if="account && hasStakingTokenBalance && hasStakingTokenAllowance"
+                                 class="is-size-1"
                                  style="margin-top: 100px;">
                             Spawn egg!
                         </section>
@@ -72,31 +95,40 @@
                             You need to go on a journey...find some LP stones and get your ass back here...
                         </section>
                     </section>
+
+                    <div v-if="account">
+                        <thunder-egg-wrapper egg-id="999" lava="23423" age="11123" lp-stones="44.33">
+                            <thunder-egg-p5-v2
+                                    egg-id="999"
+                                    :owner="`${account}`"
+                            >
+                            </thunder-egg-p5-v2>
+                        </thunder-egg-wrapper>
+                    </div>
                 </div>
             </div>
 
         </section>
 
 
+<!--        <section class="container" style="margin-top: 200px;">-->
+<!--            <h2>Gallery</h2>-->
+<!--            <div class="columns is-multiline has-text-centered">-->
+<!--                <div class="column is-one-third">-->
+<!--                    <thunder-egg-wrapper egg-id="2" lava="23423" age="11123" lp-stones="44.33">-->
+<!--                        <thunder-egg-p5-v2 egg-id="2"-->
+<!--                                           owner="0x4D20F13e70320e9C11328277F2Cc0dC235A74F27"></thunder-egg-p5-v2>-->
+<!--                    </thunder-egg-wrapper>-->
 
-
-
-        <!--        <section class="container" style="margin-top: 200px;">-->
-        <!--            <h2>Gallery</h2>-->
-        <!--            <div class="columns is-multiline has-text-centered">-->
-        <!--                <div class="column is-one-third">-->
-        <!--                    <thunder-egg-wrapper egg-id="1" lava="23423" age="11123" lp-stones="44.33">-->
-        <!--                        <thunder-egg-p5 egg-id="1" owner="0x818Ff73A5d881C27A945bE944973156C01141232"></thunder-egg-p5>-->
-        <!--                    </thunder-egg-wrapper>-->
-        <!--                </div>-->
-        <!--                <div class="column is-one-third">-->
-        <!--                    <thunder-egg-p5 egg-id="2" owner="0x4D20F13e70320e9C11328277F2Cc0dC235A74F27"></thunder-egg-p5>-->
-        <!--                </div>-->
-        <!--                <div class="column is-one-third">-->
-        <!--                    <thunder-egg-p5 egg-id="3" owner="0x84FF65C60Ff63a6eedCDDD82ad139e28da82FCDc"></thunder-egg-p5>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </section>-->
+<!--                </div>-->
+<!--                <div class="column is-one-third">-->
+<!--                    <thunder-egg-wrapper egg-id="3" lava="23423" age="11123" lp-stones="44.33">-->
+<!--                        <thunder-egg-p5-v2 egg-id="3"-->
+<!--                                           owner="0x84FF65C60Ff63a6eedCDDD82ad139e28da82FCDc"></thunder-egg-p5-v2>-->
+<!--                    </thunder-egg-wrapper>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </section>-->
 
         <!--        <o-button size="medium" variant="primary" class="has-text-primary is-uppercase has-brand-text"-->
         <!--                  @click="isImageModalActive = true">-->
@@ -126,9 +158,10 @@
   import store from './store';
   import ThunderEggP5 from './components/ThunderEggP5';
   import ThunderEggWrapper from './components/ThunderEggWrapper';
+  import ThunderEggP5V2 from './components/ThunderEggP5V2';
 
   export default {
-    components: {ThunderEggWrapper, ThunderEggP5},
+    components: {ThunderEggP5V2, ThunderEggWrapper, ThunderEggP5},
     setup() {
 
       // const isImageModalActive = ref(false);
