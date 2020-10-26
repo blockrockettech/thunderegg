@@ -160,8 +160,7 @@
       const dp2 = (value) => value && parseFloat(value).toFixed(2);
       const toEth = (value) => value && ethers.utils.formatEther(value);
 
-      onMounted(async () => {
-      });
+      onMounted(async () => {});
 
       return {
         connect,
