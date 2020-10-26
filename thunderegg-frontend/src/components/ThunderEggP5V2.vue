@@ -5,13 +5,16 @@
 <script>
   import P5 from 'p5';
 
+  import {onMounted} from 'vue';
+
   export default {
     props: ['eggId', 'owner'],
-    created() {
+
+    setup(props) {
       const sketch = (s) => {
         let hashPairs = [];
         for (let j = 0; j < 32; j++) {
-          hashPairs.push(this.owner.slice(2 + (j * 2), 4 + (j * 2)));
+          hashPairs.push(props.owner.slice(2 + (j * 2), 4 + (j * 2)));
         }
 
         let decPairs = hashPairs.map(x => parseInt(x, 16));
@@ -37,18 +40,11 @@
         let height = 400;
         let width = 400;
 
-        function centerCanvas(canvas) {
-          var x = (s.windowWidth - width) / 2;
-          var y = (s.windowHeight - height) / 2;
-          canvas.position(x, y);
-        }
-
-
         s.setup = () => {
           // eslint-disable-next-line no-unused-vars
-          let canvas = s.createCanvas(height,width);
+          let canvas = s.createCanvas(height, width);
 
-          centerCanvas(canvas);
+          // centerCanvas(canvas);
           // Move the canvas so it’s inside our <div id="sketch-holder">.
           // canvas.parent(`egg-${this.eggId}`);
           // cnv.position(0, 0);
@@ -64,7 +60,7 @@
 
           console.log(s);
         };
-        
+
         s.draw = () => {
           for (let i = 100; i > 0; i--) {
             let fillColor;
@@ -233,7 +229,9 @@
         };
       };
 
-      new P5(sketch, `xyz`);
-    }
+      onMounted(async () => {
+        new P5(sketch, `egg-${props.eggId}`);
+      });
+    },
   };
 </script>

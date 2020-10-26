@@ -111,24 +111,24 @@
         </section>
 
 
-<!--        <section class="container" style="margin-top: 200px;">-->
-<!--            <h2>Gallery</h2>-->
-<!--            <div class="columns is-multiline has-text-centered">-->
-<!--                <div class="column is-one-third">-->
-<!--                    <thunder-egg-wrapper egg-id="2" lava="23423" age="11123" lp-stones="44.33">-->
-<!--                        <thunder-egg-p5-v2 egg-id="2"-->
-<!--                                           owner="0x4D20F13e70320e9C11328277F2Cc0dC235A74F27"></thunder-egg-p5-v2>-->
-<!--                    </thunder-egg-wrapper>-->
+        <section class="container" style="margin-top: 200px;">
+            <h2>Gallery</h2>
+            <div class="columns is-multiline has-text-centered">
+                <div class="column is-one-third">
+                    <thunder-egg-wrapper egg-id="2" lava="23423" age="11123" lp-stones="44.33">
+                        <thunder-egg-p5 egg-id="2"
+                                           owner="0x4D20F13e70320e9C11328277F2Cc0dC235A74F27"></thunder-egg-p5>
+                    </thunder-egg-wrapper>
 
-<!--                </div>-->
-<!--                <div class="column is-one-third">-->
-<!--                    <thunder-egg-wrapper egg-id="3" lava="23423" age="11123" lp-stones="44.33">-->
-<!--                        <thunder-egg-p5-v2 egg-id="3"-->
-<!--                                           owner="0x84FF65C60Ff63a6eedCDDD82ad139e28da82FCDc"></thunder-egg-p5-v2>-->
-<!--                    </thunder-egg-wrapper>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </section>-->
+                </div>
+                <div class="column is-one-third">
+                    <thunder-egg-wrapper egg-id="3" lava="23423" age="11123" lp-stones="44.33">
+                        <thunder-egg-p5 egg-id="3"
+                                           owner="0x84FF65C60Ff63a6eedCDDD82ad139e28da82FCDc"></thunder-egg-p5>
+                    </thunder-egg-wrapper>
+                </div>
+            </div>
+        </section>
 
         <!--        <o-button size="medium" variant="primary" class="has-text-primary is-uppercase has-brand-text"-->
         <!--                  @click="isImageModalActive = true">-->
@@ -176,8 +176,7 @@
 
       const dp2 = (value) => value && parseFloat(value).toFixed(2);
 
-      onMounted(async () => {
-      });
+      onMounted(async () => {});
 
       return {
         connect,
