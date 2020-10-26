@@ -1,9 +1,12 @@
 <template>
     <div class="card">
+        <div class="has-background-dark has-text-light has-text-centered has-brand-text" style="padding-top: 20px; padding-bottom: 20px;">
+            {{ name }}
+        </div>
         <div class="card-image">
             <slot>🥚</slot>
         </div>
-        <div class="card-content has-background-grey-lighter has-text-dark">
+        <div class="card-content has-background-dark has-text-light has-text-centered">
             <div class="content has-text-left">
                 <div class="columns is-multiline">
                     <div class="column is-half">ID {{ eggId }}</div>
@@ -18,6 +21,6 @@
 
 <script>
   export default {
-    props: ['eggId', 'owner', 'lava', 'lpStones', 'age'],
+    props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age'],
   };
 </script>
