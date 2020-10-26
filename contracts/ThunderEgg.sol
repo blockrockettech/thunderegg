@@ -198,7 +198,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
 
     function thunderEggStats(uint256 _groveId, uint256 _eggId) external view returns (address _owner, uint256 _birth, uint256 _age, uint256 _lp, uint256 _lava, bytes32 _name) {
         if (!_exists(_eggId)) {
-            return (address(0x0), 0, 0, 0, bytes32(0x0));
+            return (address(0x0), 0, 0, 0, 0, bytes32(0x0));
         }
 
         ThunderEggInfo storage info = thunderEggInfoMapping[_groveId][_eggId];

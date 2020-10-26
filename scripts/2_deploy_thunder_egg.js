@@ -4,7 +4,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   const deployerAddress = await deployer.getAddress();
   console.log(
-    "Deploying deposit contract with the account:",
+    "Deploying thunderegg contract with the account:",
     deployerAddress
   );
 
@@ -18,7 +18,7 @@ async function main() {
 
   console.log('ThunderEgg deployed at:', (await thunderEgg.deployed()).address);
 
-  console.log('Changing minter')
+  console.log('Changing minter');
   const lavaToken = new ethers.Contract(
     process.env.LAVA_TOKEN_ADDRESS,
     LavaToken.abi,
@@ -27,7 +27,7 @@ async function main() {
 
   await lavaToken.changeMinter((await thunderEgg.deployed()).address);
 
-  console.log('Minter changed to ThunderEgg!')
+  console.log('Minter changed to ThunderEgg!');
 }
 
 main()

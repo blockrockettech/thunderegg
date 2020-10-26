@@ -109,10 +109,10 @@ export default createStore({
         eggId: eggId,
         owner: thunderEggStats[0],
         birth: thunderEggStats[1].toString(),
-        age: '1234',
-        lp: ethers.utils.formatEther(thunderEggStats[2]),
-        lava: ethers.utils.formatEther(thunderEggStats[3]),
-        name: ethers.utils.parseBytes32String(thunderEggStats[4]),
+        age: thunderEggStats[2].toString(),
+        lp: ethers.utils.formatEther(thunderEggStats[3]),
+        lava: ethers.utils.formatEther(thunderEggStats[4]),
+        name: ethers.utils.parseBytes32String(thunderEggStats[5]),
       });
     },
     async spawnThunderEgg({state, dispatch}, eggName) {
