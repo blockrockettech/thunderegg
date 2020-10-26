@@ -99,12 +99,15 @@ export default createStore({
       const hasThunderEgg = await thunderEgg.balanceOf(state.account);
       commit('storeHasThunderEgg', hasThunderEgg.eq(ethers.BigNumber.from('1')));
 
-      dispatch('loadThunderEggStats', '1');
+      const eggId = await thunderEgg.ownerToThunderEggId(state.account);
+
+      dispatch('loadThunderEggStats', eggId.toString());
     },
     async loadThunderEggStats({commit, state}, eggId) {
       const {thunderEgg} = state.contracts;
 
       const thunderEggStats = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from(eggId));
+      
       commit('storeMyThunderEggStats', {
         eggId: eggId,
         owner: thunderEggStats[0],
