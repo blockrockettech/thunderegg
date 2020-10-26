@@ -4,6 +4,7 @@
 
 <script>
   import P5 from 'p5';
+  import {ethers} from 'ethers';
 
   import {onMounted} from 'vue';
 
@@ -87,7 +88,6 @@
 
           s.push();
           s.translate(unit * 40 - s.map(decPairs[31], 0, 255, 0, unit * 5), unit * 40 - s.map(decPairs[30], 0, 255, unit * 3, unit * 5));
-          //scale(1);
           s.scale(s.map(decPairs[0], 0, 255, .02, .05) + age / 60000);
           s.rotate(s.radians(s.map(decPairs[1], 0, 255, 0, 90)) + age / 500);
 
@@ -104,7 +104,6 @@
 
           s.push();
           s.translate(unit * 40 - s.map(decPairs[15], 0, 255, unit * 5, unit * 10), unit * 40 - s.map(decPairs[16], 0, 255, 0, unit * 1.5));
-          //scale(1);
           s.scale(s.map(decPairs[1], 0, 255, .02, .05) + age / 60000);
           s.rotate(s.radians(s.map(decPairs[2], 0, 255, 0, 90)) + age / 500);
 
@@ -121,7 +120,6 @@
 
           s.push();
           s.translate(unit * 40 - s.map(decPairs[15], 0, 255, -unit * 2, -unit * 10), unit * 40 - s.map(decPairs[16], 0, 255, -unit, -unit * 5));
-          //scale(1);
           s.scale(s.map(decPairs[2], 0, 255, .02, .05) + age / 60000);
           s.rotate(s.radians(s.map(decPairs[3], 0, 255, 0, 90)) + age / 500);
 
@@ -136,8 +134,8 @@
           s.endShape();
           s.pop();
 
-          s.stroke("white");
-          s.strokeWeight(2);
+          s.stroke(ethers.utils.formatBytes32String(props.name)%255,255,255,200);
+          s.strokeWeight(1);
           s.noFill();
           s.push();
 
