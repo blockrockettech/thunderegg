@@ -1,5 +1,5 @@
 <template>
-    <article class="content" :style="{ 'background-image': 'url(/bg.jpg)'}" style="background-size: cover;">
+    <article class="has-background-success" :style="{ 'background-image': 'url(/bg.jpg)'}" style="background-position: center top; background-repeat: no-repeat;background-attachment: fixed;">
 
         <section class="hero has-text-centered">
             <div class="hero-body">
@@ -9,9 +9,9 @@
             </div>
         </section>
 
-        <section class="content container" style="margin-left: 200px; margin-right: 200px; margin-bottom: 100px;">
+        <section class="content container" style="margin-left: 250px; margin-right: 250px; margin-bottom: 100px;">
             <div class="columns">
-                <div class="column is-half is-size-5">
+                <div class="column is-half">
                     <p class="has-lead-text">Visit the
                         <o-tooltip label="Uniswap LAVA <> ETH Pair"
                                    style="text-decoration: underline;">
@@ -91,6 +91,14 @@
                                         >
                                         </thunder-egg-p5-v2>
                                     </thunder-egg-wrapper>
+
+                                    <button
+                                            class="button is-danger is-outlined is-uppercase has-lead-text is-large"
+                                            @click="destroy"
+                                            style="margin-top: 50px"
+                                    >
+                                        Destroy ThunderEgg!
+                                    </button>
                                 </div>
                             </div>
                         </section>
@@ -98,16 +106,19 @@
                                  class=""
                                  style="margin-top: 100px;">
 
-                            <o-field label="ThunderEgg name" message="max. 16 characters">
-                                <o-input v-model="eggName" maxlength="16" size="large"></o-input>
-                            </o-field>
+                            <div v-if="!isLoading">
+                                <o-field label="Name your creation..." message="max. 16 characters">
+                                    <o-input v-model="eggName" maxlength="16" size="large"></o-input>
+                                </o-field>
 
-                            <button
-                                    class="button is-danger has-lead-text is-large is-uppercase"
-                                    @click="spawn"
-                            >
-                                Spawn ThunderEgg!
-                            </button>
+                                <button
+                                        class="button is-danger has-lead-text is-large is-uppercase"
+                                        @click="spawn"
+                                >
+                                    Spawn ThunderEgg!
+                                </button>
+                            </div>
+                            <spinner v-else/>
                         </section>
                         <section v-else-if="account && hasStakingTokenBalance && !hasStakingTokenAllowance"
                                  class="is-size-1 has-text-danger" style="margin-top: 100px;">
@@ -118,7 +129,7 @@
                             >
                                 Approve LP Stones
                             </button>
-                            <Spinner v-else/>
+                            <spinner v-else/>
                         </section>
                         <section v-else class="has-warning-text has-background-grey-lighter"
                                  style="margin-top: 100px; padding: 30px;  border-radius: 25px;">
@@ -132,7 +143,8 @@
 
         </section>
 
-        <section class="level has-background-info has-text-primary container" style="border-radius: 25px; margin-bottom: 100px">
+        <section class="level has-background-info has-text-primary container"
+                 style="border-radius: 25px; margin-bottom: 100px">
             <div class="level-item has-text-centered">
                 <div>
                     <p class="is-size-5 is-uppercase is-marginless">ThunderEggs</p>
@@ -169,13 +181,13 @@
             <h2 class="has-lead-text">Spawnings</h2>
             <div class="columns is-multiline">
                 <div class="column is-one-third" v-for="spawn in spawnings" :key="spawn.eggId">
-                    <thunder-egg-light-wrapper   :egg-id="spawn.eggId"
-                                                 :lava="spawn.lava"
-                                                 :birth="spawn.birth"
-                                                 :age="spawn.age"
-                                                 :lp-stones="spawn.lp"
-                                                 :name="spawn.name"
-                                                 :owner="spawn.owner"
+                    <thunder-egg-light-wrapper :egg-id="spawn.eggId"
+                                               :lava="spawn.lava"
+                                               :birth="spawn.birth"
+                                               :age="spawn.age"
+                                               :lp-stones="spawn.lp"
+                                               :name="spawn.name"
+                                               :owner="spawn.owner"
                     >
                         <thunder-egg-p5-v2
                                 :egg-id="spawn.eggId"
@@ -193,7 +205,7 @@
             </div>
         </section>
 
-        <footer class="footer has-background-grey-lighter" style="margin-top: 300px;">
+        <footer class="footer has-background-grey-lighter" style="margin-top: 100px;">
             <div class="content has-text-centered">
                 <p class="has-warning-text">
                     Built by BlockRocket x Sequence x Art on the Blockchain
@@ -229,6 +241,7 @@
       const connect = () => store.dispatch('bootstrap');
       const approve = () => store.dispatch('approveStakingTokens');
       const spawn = () => store.dispatch('spawnThunderEgg', eggName.value);
+      const destroy = () => store.dispatch('destroy');
 
       const dp2 = (value) => value && parseFloat(value).toFixed(2);
       const toEth = (value) => value && ethers.utils.formatEther(value);
@@ -240,6 +253,7 @@
         connect,
         approve,
         spawn,
+        destroy,
         dp2,
         toEth,
         eggName,
@@ -272,6 +286,7 @@
     $tertiary: #5433a4;
     $light: #F5F5F5;
     $info: #8E9B12;
+    $success: #C3AAD4;
 
     $background: #4b4b4b;
 
@@ -284,13 +299,11 @@
         font-size: 2rem;
         font-weight: bold;
         color: $primary;
-        letter-spacing: 2px;
     }
 
     .has-intro-text {
         font-size: 1.5rem;
         color: $secondary;
-        letter-spacing: 1.5px;
     }
 
     .has-warning-text {
@@ -298,6 +311,11 @@
         color: $tertiary;
         letter-spacing: 1.5px;
         font-weight: bold;
+    }
+
+    .o-field .o-field-label {
+        font-size: 1.5rem !important;
+        font-family: 'Yanone Kaffeesatz', sans-serif;
     }
 
     @import '~bulma';
