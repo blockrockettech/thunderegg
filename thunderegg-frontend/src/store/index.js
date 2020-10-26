@@ -19,6 +19,7 @@ export default createStore({
     hasStakingTokenAllowance: null,
     myThunderEggStats: null,
     hasThunderEgg: null,
+    spawnings: [],
     groveId: 0, // just one exists initially
   },
   mutations: {
@@ -49,6 +50,9 @@ export default createStore({
     },
     storeHasStakingTokenAllowance(state, hasStakingTokenAllowance) {
       state.hasStakingTokenAllowance = hasStakingTokenAllowance;
+    },
+    storeSpawnings(state, spawnings) {
+      state.spawnings = spawnings;
     },
   },
   actions: {
@@ -92,6 +96,8 @@ export default createStore({
 
         const stakingTokenAllowance = await stakingToken.allowance(accounts[0], thunderEgg.address);
         commit('storeHasStakingTokenAllowance', stakingTokenAllowance.gte(stakingTokenBalance));
+
+        dispatch('loadSpawnings');
       } else {
         console.error('Unable to bootstrap as window.ethereum is undefined');
         alert('Unable to bootstrap as window.ethereum is undefined');
@@ -129,6 +135,43 @@ export default createStore({
         lava: ethers.utils.formatEther(thunderEggStats[4]),
         name: ethers.utils.parseBytes32String(thunderEggStats[5]),
       });
+    },
+    async loadSpawnings({commit, state}) {
+      const {thunderEgg} = state.contracts;
+
+      const thunderEggStats1 = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from('1'));
+      const thunderEggStats2 = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from('2'));
+      const thunderEggStats3 = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from('3'));
+
+      commit('storeSpawnings', [
+        {
+          eggId: '1',
+          owner: thunderEggStats1[0],
+          birth: thunderEggStats1[1].toString(),
+          age: thunderEggStats1[2].toString(),
+          lp: ethers.utils.formatEther(thunderEggStats1[3]),
+          lava: ethers.utils.formatEther(thunderEggStats1[4]),
+          name: ethers.utils.parseBytes32String(thunderEggStats1[5]),
+        },
+        {
+          eggId: '2',
+          owner: thunderEggStats2[0],
+          birth: thunderEggStats2[1].toString(),
+          age: thunderEggStats2[2].toString(),
+          lp: ethers.utils.formatEther(thunderEggStats2[3]),
+          lava: ethers.utils.formatEther(thunderEggStats2[4]),
+          name: ethers.utils.parseBytes32String(thunderEggStats2[5]),
+        },
+        {
+          eggId: '3',
+          owner: thunderEggStats3[0],
+          birth: thunderEggStats3[1].toString(),
+          age: thunderEggStats3[2].toString(),
+          lp: ethers.utils.formatEther(thunderEggStats3[3]),
+          lava: ethers.utils.formatEther(thunderEggStats3[4]),
+          name: ethers.utils.parseBytes32String(thunderEggStats3[5]),
+        },
+      ]);
     },
     async spawnThunderEgg({state, dispatch, commit}, eggName) {
       console.log('Spawning egg with name:', eggName);

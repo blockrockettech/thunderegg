@@ -9,7 +9,7 @@
             </div>
         </section>
 
-        <section class="content container" style="margin-left: 200px; margin-right: 200px;">
+        <section class="content container" style="margin-left: 200px; margin-right: 200px; margin-bottom: 100px;">
             <div class="columns">
                 <div class="column is-half is-size-5">
                     <p class="has-lead-text">Visit the
@@ -87,6 +87,7 @@
                                                 :lp-stones="myThunderEggStats.lp"
                                                 :name="myThunderEggStats.name"
                                                 :owner="myThunderEggStats.owner"
+                                                prefix="my"
                                         >
                                         </thunder-egg-p5-v2>
                                     </thunder-egg-wrapper>
@@ -131,6 +132,67 @@
 
         </section>
 
+        <section class="level has-background-grey has-text-light container" style="border-radius: 25px; margin-bottom: 100px">
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="is-size-5 is-uppercase is-marginless">ThunderEggs</p>
+                    <p class="is-size-2">55</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="is-size-5 is-uppercase is-marginless">Spawned</p>
+                    <p class="is-size-2">80</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="is-size-5 is-uppercase is-marginless">Destroyed</p>
+                    <p class="is-size-2">25</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="is-size-5 is-uppercase is-marginless">$LAVA</p>
+                    <p class="is-size-2">252323</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="is-size-5 is-uppercase is-marginless">LP Stones</p>
+                    <p class="is-size-2">333</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="container">
+            <h2 class="has-lead-text">Spawnings</h2>
+            <div class="columns is-multiline">
+                <div class="column is-one-third" v-for="spawn in spawnings" :key="spawn.eggId">
+                    <thunder-egg-light-wrapper   :egg-id="spawn.eggId"
+                                                 :lava="spawn.lava"
+                                                 :birth="spawn.birth"
+                                                 :age="spawn.age"
+                                                 :lp-stones="spawn.lp"
+                                                 :name="spawn.name"
+                                                 :owner="spawn.owner"
+                    >
+                        <thunder-egg-p5-v2
+                                :egg-id="spawn.eggId"
+                                :lava="spawn.lava"
+                                :birth="spawn.birth"
+                                :age="spawn.age"
+                                :lp-stones="spawn.lp"
+                                :name="spawn.name"
+                                :owner="spawn.owner"
+                                prefix="spawnings"
+                        >
+                        </thunder-egg-p5-v2>
+                    </thunder-egg-light-wrapper>
+                </div>
+            </div>
+        </section>
+
         <footer class="footer has-background-grey-lighter" style="margin-top: 300px;">
             <div class="content has-text-centered">
                 <p class="has-warning-text">
@@ -148,9 +210,10 @@
   import ThunderEggWrapper from './components/ThunderEggWrapper';
   import ThunderEggP5V2 from './components/ThunderEggP5V2';
   import Spinner from './components/Spinner';
+  import ThunderEggLightWrapper from './components/ThunderEggLightWrapper';
 
   export default {
-    components: {ThunderEggP5V2, ThunderEggWrapper, Spinner},
+    components: {ThunderEggLightWrapper, ThunderEggP5V2, ThunderEggWrapper, Spinner},
     setup() {
 
       const eggName = ref(null);
@@ -161,6 +224,7 @@
       const stakingTokenBalance = computed(() => store.state.stakingTokenBalance);
       const hasStakingTokenBalance = computed(() => store.state.hasStakingTokenBalance);
       const hasStakingTokenAllowance = computed(() => store.state.hasStakingTokenAllowance);
+      const spawnings = computed(() => store.state.spawnings);
 
       const connect = () => store.dispatch('bootstrap');
       const approve = () => store.dispatch('approveStakingTokens');
@@ -186,6 +250,7 @@
         stakingTokenBalance,
         hasStakingTokenBalance,
         hasStakingTokenAllowance,
+        spawnings,
       };
     }
   };
@@ -210,6 +275,7 @@
     $background: #4b4b4b;
 
     $family-primary: 'Neuton', serif;
+    $family-secondary: 'Yanone Kaffeesatz', sans-serif;
     $font-family-base: 'Neuton', serif;
 
     .has-lead-text {

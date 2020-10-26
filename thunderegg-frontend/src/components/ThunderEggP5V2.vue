@@ -1,5 +1,5 @@
 <template>
-    <div :id="`egg-${eggId}`"></div>
+    <div :id="`egg-${prefix}-${eggId}`"></div>
 </template>
 
 <script>
@@ -8,7 +8,7 @@
   import {onMounted} from 'vue';
 
   export default {
-    props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age'],
+    props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age', 'prefix'],
 
     setup(props) {
       const sketch = (s) => {
@@ -214,7 +214,7 @@
       };
 
       onMounted(async () => {
-        new P5(sketch, `egg-${props.eggId}`);
+        new P5(sketch, `egg-${props.prefix}-${props.eggId}`);
       });
     },
   };
