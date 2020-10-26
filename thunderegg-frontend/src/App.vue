@@ -132,7 +132,7 @@
 
         </section>
 
-        <section class="level has-background-grey has-text-light container" style="border-radius: 25px; margin-bottom: 100px">
+        <section class="level has-background-info has-text-primary container" style="border-radius: 25px; margin-bottom: 100px">
             <div class="level-item has-text-centered">
                 <div>
                     <p class="is-size-5 is-uppercase is-marginless">ThunderEggs</p>
@@ -271,6 +271,7 @@
     $secondary: #171a39;
     $tertiary: #5433a4;
     $light: #F5F5F5;
+    $info: #8E9B12;
 
     $background: #4b4b4b;
 

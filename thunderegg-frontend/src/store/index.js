@@ -139,39 +139,26 @@ export default createStore({
     async loadSpawnings({commit, state}) {
       const {thunderEgg} = state.contracts;
 
-      const thunderEggStats1 = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from('1'));
-      const thunderEggStats2 = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from('2'));
-      const thunderEggStats3 = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from('3'));
+      const supply = await thunderEgg.totalSupply();
 
-      commit('storeSpawnings', [
-        {
-          eggId: '1',
-          owner: thunderEggStats1[0],
-          birth: thunderEggStats1[1].toString(),
-          age: thunderEggStats1[2].toString(),
-          lp: ethers.utils.formatEther(thunderEggStats1[3]),
-          lava: ethers.utils.formatEther(thunderEggStats1[4]),
-          name: ethers.utils.parseBytes32String(thunderEggStats1[5]),
-        },
-        {
-          eggId: '2',
-          owner: thunderEggStats2[0],
-          birth: thunderEggStats2[1].toString(),
-          age: thunderEggStats2[2].toString(),
-          lp: ethers.utils.formatEther(thunderEggStats2[3]),
-          lava: ethers.utils.formatEther(thunderEggStats2[4]),
-          name: ethers.utils.parseBytes32String(thunderEggStats2[5]),
-        },
-        {
-          eggId: '3',
-          owner: thunderEggStats3[0],
-          birth: thunderEggStats3[1].toString(),
-          age: thunderEggStats3[2].toString(),
-          lp: ethers.utils.formatEther(thunderEggStats3[3]),
-          lava: ethers.utils.formatEther(thunderEggStats3[4]),
-          name: ethers.utils.parseBytes32String(thunderEggStats3[5]),
-        },
-      ]);
+      const spawnings = [];
+      for (let x = 1; x <= parseInt(supply.toString()); x++) {
+        const exists = await thunderEgg.exists(ethers.BigNumber.from(x));
+        if (exists) {
+          const thunderEggStats = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from(ethers.BigNumber.from(x)));
+          spawnings.push({
+              eggId: x.toString(),
+              owner: thunderEggStats[0],
+              birth: thunderEggStats[1].toString(),
+              age: thunderEggStats[2].toString(),
+              lp: ethers.utils.formatEther(thunderEggStats[3]),
+              lava: ethers.utils.formatEther(thunderEggStats[4]),
+              name: ethers.utils.parseBytes32String(thunderEggStats[5]),
+            });
+        }
+      }
+
+      commit('storeSpawnings', spawnings);
     },
     async spawnThunderEgg({state, dispatch, commit}, eggName) {
       console.log('Spawning egg with name:', eggName);

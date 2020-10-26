@@ -27,7 +27,7 @@
 <style lang="scss" scoped>
 
     .slate {
-        background: url('/slate.png') no-repeat center center;
+        background: url('/slate.png') no-repeat center;
         -webkit-background-size: cover;
         -moz-background-size: cover;
         -o-background-size: cover;
