@@ -1,22 +1,25 @@
 <template>
-    <div class="card">
-        <div class="has-background-dark has-text-light has-text-centered has-brand-text" style="padding-top: 20px; padding-bottom: 20px;">
-            {{ name }}
+
+    <div class="card slate is-shadowless" style="padding-left: 75px; padding-right: 75px; height: 700px">
+        <div class="has-text-weight-bold" style="padding-top: 75px;">
+            <div class="columns">
+                <div class="column has-text-left is-size-2">#{{ eggId }}</div>
+                <div class="column has-text-centered is-size-2 ">{{ name }}</div>
+                <div class="column has-text-right is-size-2">{{ age }} <span class="is-size-6">blocks</span></div>
+            </div>
         </div>
         <div class="card-image">
             <slot>🥚</slot>
         </div>
-        <div class="card-content has-background-dark has-text-light has-text-centered">
-            <div class="content has-text-left">
-                <div class="columns is-multiline">
-                    <div class="column is-half">ID {{ eggId }}</div>
-                    <div class="column is-half">Age {{ age }}</div>
-                    <div class="column is-half">🔥 {{ lava }}</div>
-                    <div class="column is-half">💎 {{ lpStones }}</div>
-                </div>
+        <div class="is-size-4 has-text-weight-bold">
+            <div class="columns">
+                <div class="column has-text-left">LAVA {{ lava }}</div>
+                <div class="column has-text-centered"></div>
+                <div class="column has-text-right">LP {{ lpStones }}</div>
             </div>
         </div>
     </div>
+
 </template>
 
 <script>
@@ -24,3 +27,14 @@
     props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age'],
   };
 </script>
+
+<style lang="scss" scoped>
+
+    .slate {
+        background: url('/slate.png') no-repeat center center;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+</style>

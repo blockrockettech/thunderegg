@@ -44,7 +44,7 @@
           s.createCanvas(height, width);
 
           s.colorMode(s.HSB, 255);
-          s.background(200);
+          // s.background(200);
           colorA = s.color(step, 255, 255);
           colorB = s.color(s.map(decPairs[2], 0, 255, 15, 60), 255 - brightness, 255 - brightness);
           colorC = s.color(s.map(decPairs[3], 0, 255, 60, 15), 255 - brightness, 255 - brightness);

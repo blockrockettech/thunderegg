@@ -117,7 +117,7 @@ export default createStore({
       commit('storeIsLoading', true);
 
       const thunderEggStats = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from(eggId));
-      
+
       commit('storeIsLoading', false);
 
       commit('storeMyThunderEggStats', {

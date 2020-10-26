@@ -13,7 +13,8 @@
 </script>
 
 <style scoped lang="scss">
-    @import '../colours.scss';
+    $primary: #2d1464;
+    $secondary: #5433a4;
 
     .spinner-square {
         display: flex;
