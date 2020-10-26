@@ -20,6 +20,7 @@ export default createStore({
     myThunderEggStats: null,
     hasThunderEgg: null,
     spawnings: [],
+    coreStats: null,
     groveId: 0, // just one exists initially
   },
   mutations: {
@@ -53,6 +54,9 @@ export default createStore({
     },
     storeSpawnings(state, spawnings) {
       state.spawnings = spawnings;
+    },
+    storeCoreStats(state, coreStats) {
+      state.coreStats = coreStats;
     },
   },
   actions: {
@@ -98,6 +102,7 @@ export default createStore({
         commit('storeHasStakingTokenAllowance', stakingTokenAllowance.gte(stakingTokenBalance));
 
         dispatch('loadSpawnings');
+        dispatch('loadCoreStats');
       } else {
         console.error('Unable to bootstrap as window.ethereum is undefined');
         alert('Unable to bootstrap as window.ethereum is undefined');
@@ -134,6 +139,21 @@ export default createStore({
         lp: ethers.utils.formatEther(thunderEggStats[3]),
         lava: ethers.utils.formatEther(thunderEggStats[4]),
         name: ethers.utils.parseBytes32String(thunderEggStats[5]),
+      });
+    },
+    async loadCoreStats({commit, state}) {
+      const {thunderEgg, stakingToken} = state.contracts;
+
+
+
+      const totalSupply = await thunderEgg.totalSupply();
+      const lpTotalSupply = await stakingToken.totalSupply();
+      const lavaPerBlock = await thunderEgg.lavaPerBlock();
+
+      commit('storeCoreStats', {
+        totalSupply: totalSupply.toString(),
+        lavaPerBlock: ethers.utils.formatEther(lavaPerBlock.toString()),
+        lpTotalSupply:  ethers.utils.formatEther(lpTotalSupply.toString()),
       });
     },
     async loadSpawnings({commit, state}) {

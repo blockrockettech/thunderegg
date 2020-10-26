@@ -6,7 +6,7 @@
                 <div class="column has-text-centered is-size-2 ">{{ name }}</div>
             </div>
         </div>
-        <div class="card-image">
+        <div class="card-image has-text-centered">
             <slot>🥚</slot>
         </div>
         <div class="is-size-4 has-text-weight-bold">
@@ -27,7 +27,7 @@
 <style lang="scss" scoped>
 
     .slate {
-        background: url('/slate.png') no-repeat center;
+        background: url('/slate-large.png') no-repeat center center;
         -webkit-background-size: cover;
         -moz-background-size: cover;
         -o-background-size: cover;

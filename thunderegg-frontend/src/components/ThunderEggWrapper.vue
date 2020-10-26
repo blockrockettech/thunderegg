@@ -5,10 +5,13 @@
             <div class="columns">
                 <div class="column has-text-left is-size-2">#{{ eggId }}</div>
                 <div class="column has-text-centered is-size-2 ">{{ name }}</div>
-                <div class="column has-text-right is-size-2">{{ age }} <span class="is-size-6">blocks</span></div>
+                <div class="column has-text-right is-size-2">
+                    {{age}}
+                    <span class="is-size-6">blocks</span>
+                </div>
             </div>
         </div>
-        <div class="card-image">
+        <div class="card-image has-text-centered">
             <slot>🥚</slot>
         </div>
         <div class="is-size-4 has-text-weight-bold">
@@ -23,6 +26,8 @@
 </template>
 
 <script>
+
+
   export default {
     props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age'],
   };
@@ -31,7 +36,7 @@
 <style lang="scss" scoped>
 
     .slate {
-        background: url('/slate.png') no-repeat center center;
+        background: url('/slate-large.png') no-repeat center center;
         -webkit-background-size: cover;
         -moz-background-size: cover;
         -o-background-size: cover;

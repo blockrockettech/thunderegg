@@ -1,5 +1,6 @@
 <template>
-    <article class="has-background-success" :style="{ 'background-image': 'url(/bg.jpg)'}" style="background-position: center top; background-repeat: no-repeat;background-attachment: fixed;">
+    <article class="has-background-success" :style="{ 'background-image': 'url(/bg.jpg)'}"
+             style="background-position: center top; background-repeat: no-repeat;background-attachment: fixed;">
 
         <section class="hero has-text-centered">
             <div class="hero-body">
@@ -9,7 +10,7 @@
             </div>
         </section>
 
-        <section class="content container" style="margin-left: 250px; margin-right: 250px; margin-bottom: 100px;">
+        <section class="content container" style="margin-left: 250px; margin-right: 250px; margin-bottom: 50px;">
             <div class="columns">
                 <div class="column is-half">
                     <p class="has-lead-text">Visit the
@@ -97,7 +98,7 @@
                                             @click="destroy"
                                             style="margin-top: 50px"
                                     >
-                                        Destroy ThunderEgg!
+                                        Destroy ThunderEgg & Release $LAVA!
                                     </button>
                                 </div>
                             </div>
@@ -144,11 +145,11 @@
         </section>
 
         <section class="level has-background-info has-text-primary container"
-                 style="border-radius: 25px; margin-bottom: 100px">
+                 style="border-radius: 25px; margin-bottom: 100px" v-if="coreStats">
             <div class="level-item has-text-centered">
                 <div>
                     <p class="is-size-5 is-uppercase is-marginless">ThunderEggs</p>
-                    <p class="is-size-2">55</p>
+                    <p class="is-size-2">{{coreStats.totalSupply}}</p>
                 </div>
             </div>
             <div class="level-item has-text-centered">
@@ -171,8 +172,8 @@
             </div>
             <div class="level-item has-text-centered">
                 <div>
-                    <p class="is-size-5 is-uppercase is-marginless">LP Stones</p>
-                    <p class="is-size-2">333</p>
+                    <p class="is-size-5 is-uppercase is-marginless">$LAVA per Block</p>
+                    <p class="is-size-2">{{coreStats.lavaPerBlock}}</p>
                 </div>
             </div>
         </section>
@@ -180,7 +181,7 @@
         <section class="container">
             <h2 class="has-lead-text">Spawnings</h2>
             <div class="columns is-multiline">
-                <div class="column is-one-third" v-for="spawn in spawnings" :key="spawn.eggId">
+                <div class="column is-one-third-desktop" v-for="spawn in spawnings" :key="spawn.eggId">
                     <thunder-egg-light-wrapper :egg-id="spawn.eggId"
                                                :lava="spawn.lava"
                                                :birth="spawn.birth"
@@ -237,6 +238,7 @@
       const hasStakingTokenBalance = computed(() => store.state.hasStakingTokenBalance);
       const hasStakingTokenAllowance = computed(() => store.state.hasStakingTokenAllowance);
       const spawnings = computed(() => store.state.spawnings);
+      const coreStats = computed(() => store.state.coreStats);
 
       const connect = () => store.dispatch('bootstrap');
       const approve = () => store.dispatch('approveStakingTokens');
@@ -265,6 +267,7 @@
         hasStakingTokenBalance,
         hasStakingTokenAllowance,
         spawnings,
+        coreStats,
       };
     }
   };
