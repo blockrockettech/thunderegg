@@ -8,7 +8,7 @@
   import {onMounted} from 'vue';
 
   export default {
-    props: ['eggId', 'owner'],
+    props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age'],
 
     setup(props) {
       const sketch = (s) => {
@@ -20,7 +20,7 @@
         let decPairs = hashPairs.map(x => parseInt(x, 16));
 
         // eslint-disable-next-line no-unused-vars
-        let age = 0;
+        let age = props.age;
         // eslint-disable-next-line no-unused-vars
         let step = 0;
         // eslint-disable-next-line no-unused-vars
@@ -41,15 +41,7 @@
         let width = 400;
 
         s.setup = () => {
-          // eslint-disable-next-line no-unused-vars
-          let canvas = s.createCanvas(height, width);
-
-          // centerCanvas(canvas);
-          // Move the canvas so it’s inside our <div id="sketch-holder">.
-          // canvas.parent(`egg-${this.eggId}`);
-          // cnv.position(0, 0);
-
-          // canvas.parent(`xyz`);
+          s.createCanvas(height, width);
 
           s.colorMode(s.HSB, 255);
           s.background(200);
@@ -57,14 +49,11 @@
           colorB = s.color(s.map(decPairs[2], 0, 255, 15, 60), 255 - brightness, 255 - brightness);
           colorC = s.color(s.map(decPairs[3], 0, 255, 60, 15), 255 - brightness, 255 - brightness);
           unit = s.width / 80;
-
-          console.log(s);
         };
 
         s.draw = () => {
           for (let i = 100; i > 0; i--) {
             let fillColor;
-            brightness = age / 3000 * 128;
             colorA = s.color(step, 255, 255);
             colorB = s.color(s.map(decPairs[2], 0, 255, 15, 60), 255 - brightness, 255 - brightness);
             colorC = s.color(s.map(decPairs[3], 0, 255, 60, 15), 255 - brightness, 255 - brightness);
@@ -210,10 +199,6 @@
 
           s.pop();
 
-          if (age < 3000) {
-            //age++;
-            age = age + 10;
-          }
 
           if (step > 40) {
             increase = false;

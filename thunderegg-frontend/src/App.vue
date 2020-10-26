@@ -48,7 +48,7 @@
                     <section v-if="account" class="content has-text-centered">
                         Welcome {{ account.substring(0, 8) + '...' }}
                         <br/>
-                        Staking balance: {{ dp2(stakingTokenBalance) }}
+                        Staking balance: {{ dp2(toEth(stakingTokenBalance)) }}
                         <br/>
                         hasStakingTokenAllowance: {{ hasStakingTokenAllowance }}
                         <br/>
@@ -66,13 +66,26 @@
                         </section>
                         <section v-else-if="account && hasThunderEgg" class="has-text-centered">
                             <div class="columns is-centered">
-                                <div class="column is-half">
-                                    <thunder-egg-wrapper egg-id="1" lava="23423" age="11123" lp-stones="44.33">
-                                        <thunder-egg-p5
-                                                egg-id="1"
-                                                owner="0x818Ff73A5d881C27A945bE944973156C01141232"
+                                <div class="column" v-if="myThunderEggStats">
+                                    <thunder-egg-wrapper
+                                            :egg-id="myThunderEggStats.eggId"
+                                            :lava="myThunderEggStats.lava"
+                                            :birth="myThunderEggStats.birth"
+                                            :age="myThunderEggStats.age"
+                                            :lp-stones="myThunderEggStats.lp"
+                                            :name="myThunderEggStats.name"
+                                            :owner="myThunderEggStats.owner"
+                                    >
+                                        <thunder-egg-p5-v2
+                                                :egg-id="myThunderEggStats.eggId"
+                                                :lava="myThunderEggStats.lava"
+                                                :birth="myThunderEggStats.birth"
+                                                :age="myThunderEggStats.age"
+                                                :lp-stones="myThunderEggStats.lp"
+                                                :name="myThunderEggStats.name"
+                                                :owner="myThunderEggStats.owner"
                                         >
-                                        </thunder-egg-p5>
+                                        </thunder-egg-p5-v2>
                                     </thunder-egg-wrapper>
                                 </div>
                             </div>
@@ -80,7 +93,17 @@
                         <section v-else-if="account && hasStakingTokenBalance && hasStakingTokenAllowance"
                                  class="is-size-1"
                                  style="margin-top: 100px;">
-                            Spawn egg!
+
+                            <o-field label="ThunderEgg name" message="max. 16 characters">
+                                <o-input v-model="eggName" maxlength="16"></o-input>
+                            </o-field>
+
+                            <button
+                                    class="button is-primary is-uppercase has-brand-text"
+                                    @click="spawn"
+                            >
+                                Spawn ThunderEgg!
+                            </button>
                         </section>
                         <section v-else-if="account && hasStakingTokenBalance && !hasStakingTokenAllowance"
                                  class="is-size-1 has-text-danger" style="margin-top: 100px;">
@@ -95,52 +118,10 @@
                             You need to go on a journey...find some LP stones and get your ass back here...
                         </section>
                     </section>
-
-                    <div v-if="account" id="xyz">
-                        <thunder-egg-wrapper egg-id="999" lava="23423" age="11123" lp-stones="44.33">
-                            <thunder-egg-p5-v2
-                                    egg-id="999"
-                                    :owner="`${account}`"
-                            >
-                            </thunder-egg-p5-v2>
-                        </thunder-egg-wrapper>
-                    </div>
                 </div>
             </div>
 
         </section>
-
-
-        <section class="container" style="margin-top: 200px;">
-            <h2>Gallery</h2>
-            <div class="columns is-multiline has-text-centered">
-                <div class="column is-one-third">
-                    <thunder-egg-wrapper egg-id="2" lava="23423" age="11123" lp-stones="44.33">
-                        <thunder-egg-p5 egg-id="2"
-                                           owner="0x4D20F13e70320e9C11328277F2Cc0dC235A74F27"></thunder-egg-p5>
-                    </thunder-egg-wrapper>
-
-                </div>
-                <div class="column is-one-third">
-                    <thunder-egg-wrapper egg-id="3" lava="23423" age="11123" lp-stones="44.33">
-                        <thunder-egg-p5 egg-id="3"
-                                           owner="0x84FF65C60Ff63a6eedCDDD82ad139e28da82FCDc"></thunder-egg-p5>
-                    </thunder-egg-wrapper>
-                </div>
-            </div>
-        </section>
-
-        <!--        <o-button size="medium" variant="primary" class="has-text-primary is-uppercase has-brand-text"-->
-        <!--                  @click="isImageModalActive = true">-->
-        <!--            Open modal-->
-        <!--        </o-button>-->
-
-        <!--        <o-modal v-model:active="isImageModalActive">-->
-        <!--            <p style="text-align: center">-->
-        <!--                <img src="https://avatars2.githubusercontent.com/u/66300512?s=200&v=4"/>-->
-        <!--            </p>-->
-        <!--        </o-modal>-->
-
 
         <footer class="footer has-background-info has-text-light">
             <div class="content has-text-centered">
@@ -154,36 +135,44 @@
 </template>
 
 <script>
-  import {onMounted, computed} from 'vue';
+  import {ethers} from 'ethers';
+  import {onMounted, computed, ref} from 'vue';
   import store from './store';
-  import ThunderEggP5 from './components/ThunderEggP5';
   import ThunderEggWrapper from './components/ThunderEggWrapper';
   import ThunderEggP5V2 from './components/ThunderEggP5V2';
 
   export default {
-    components: {ThunderEggP5V2, ThunderEggWrapper, ThunderEggP5},
+    components: {ThunderEggP5V2, ThunderEggWrapper},
     setup() {
 
-      // const isImageModalActive = ref(false);
+      const eggName = ref(null);
       const account = computed(() => store.state.account);
       const hasThunderEgg = computed(() => store.state.hasThunderEgg);
+      const myThunderEggStats = computed(() => store.state.myThunderEggStats);
       const stakingTokenBalance = computed(() => store.state.stakingTokenBalance);
       const hasStakingTokenBalance = computed(() => store.state.hasStakingTokenBalance);
       const hasStakingTokenAllowance = computed(() => store.state.hasStakingTokenAllowance);
 
       const connect = () => store.dispatch('bootstrap');
-      const approve = () => store.dispatch('approve');
+      const approve = () => store.dispatch('approveStakingTokens');
+      const spawn = () => store.dispatch('spawnThunderEgg', eggName.value);
 
       const dp2 = (value) => value && parseFloat(value).toFixed(2);
+      const toEth = (value) => value && ethers.utils.formatEther(value);
 
-      onMounted(async () => {});
+      onMounted(async () => {
+      });
 
       return {
         connect,
         approve,
+        spawn,
         dp2,
+        toEth,
+        eggName,
         account,
         hasThunderEgg,
+        myThunderEggStats,
         stakingTokenBalance,
         hasStakingTokenBalance,
         hasStakingTokenAllowance,

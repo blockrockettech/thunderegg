@@ -1,5 +1,8 @@
 <template>
-    <div class="card" style="width: 400px;">
+    <div class="card">
+        <div class="has-background-dark has-text-light has-text-centered has-brand-text" style="padding-top: 20px; padding-bottom: 20px;">
+            {{ name }}
+        </div>
         <div class="card-image">
             <slot>🥚</slot>
         </div>
@@ -18,6 +21,6 @@
 
 <script>
   export default {
-    props: ['eggId', 'owner', 'lava', 'lpStones', 'age'],
+    props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age'],
   };
 </script>
