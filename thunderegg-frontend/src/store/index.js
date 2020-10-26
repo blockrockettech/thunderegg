@@ -107,7 +107,7 @@ export default createStore({
       const {thunderEgg} = state.contracts;
 
       const thunderEggStats = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from(eggId));
-      
+
       commit('storeMyThunderEggStats', {
         eggId: eggId,
         owner: thunderEggStats[0],

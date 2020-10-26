@@ -27,6 +27,9 @@ async function main() {
 
   await lavaToken.changeMinter((await thunderEgg.deployed()).address);
 
+  //setBaseTokenURI
+  // https://us-central1-thunderegg-d26af.cloudfunctions.net/main/api/chain/4/metadata/1 - API done and hosted
+
   console.log('Minter changed to ThunderEgg!');
 }
 

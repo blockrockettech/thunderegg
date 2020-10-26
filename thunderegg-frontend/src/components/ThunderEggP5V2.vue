@@ -199,7 +199,6 @@
 
           s.pop();
 
-
           if (step > 40) {
             increase = false;
           } else if (step <= 15) {

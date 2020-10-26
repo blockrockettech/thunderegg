@@ -92,3 +92,5 @@ sw.*
 node_modules*
 
 *.iml
+
+/.firebase
