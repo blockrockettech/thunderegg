@@ -9,6 +9,7 @@ const MAX_UINT256 = ethers.BigNumber.from('2').pow(ethers.BigNumber.from('256'))
 
 export default createStore({
   state: {
+    isLoading: false,
     account: null,
     contracts: null,
     chain: null,
@@ -21,6 +22,9 @@ export default createStore({
     groveId: 0, // just one exists initially
   },
   mutations: {
+    storeIsLoading(state, loading) {
+      state.isLoading = loading;
+    },
     storeSigner(state, signer) {
       state.signer = signer;
     },
@@ -96,17 +100,25 @@ export default createStore({
     async loadThunderEgg({commit, dispatch, state}) {
       const {thunderEgg} = state.contracts;
 
+      commit('storeIsLoading', true);
+
       const hasThunderEgg = await thunderEgg.balanceOf(state.account);
       commit('storeHasThunderEgg', hasThunderEgg.eq(ethers.BigNumber.from('1')));
 
       const eggId = await thunderEgg.ownerToThunderEggId(state.account);
+
+      commit('storeIsLoading', false);
 
       dispatch('loadThunderEggStats', eggId.toString());
     },
     async loadThunderEggStats({commit, state}, eggId) {
       const {thunderEgg} = state.contracts;
 
+      commit('storeIsLoading', true);
+
       const thunderEggStats = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from(eggId));
+      
+      commit('storeIsLoading', false);
 
       commit('storeMyThunderEggStats', {
         eggId: eggId,
@@ -118,10 +130,12 @@ export default createStore({
         name: ethers.utils.parseBytes32String(thunderEggStats[5]),
       });
     },
-    async spawnThunderEgg({state, dispatch}, eggName) {
+    async spawnThunderEgg({state, dispatch, commit}, eggName) {
       console.log('Spawning egg with name:', eggName);
 
       const {thunderEgg} = state.contracts;
+
+      commit('storeIsLoading', true);
 
       const tx = await thunderEgg.spawn(
         state.groveId,
@@ -132,11 +146,15 @@ export default createStore({
 
       await tx.wait(1);
 
+      commit('storeIsLoading', false);
+
       dispatch('loadThunderEgg');
     },
     async approveStakingTokens({state, commit}) {
       if (state.contracts && state.account) {
         const {stakingToken, thunderEgg} = state.contracts;
+
+        commit('storeIsLoading', true);
 
         const tx = await stakingToken.approve(
           thunderEgg.address,
@@ -151,6 +169,8 @@ export default createStore({
 
         const stakingTokenAllowance = await stakingToken.allowance(state.account, thunderEgg.address);
         commit('storeHasStakingTokenAllowance', stakingTokenAllowance.gte(stakingTokenBalance));
+
+        commit('storeIsLoading', false);
       }
     },
   },

@@ -110,9 +110,11 @@
                             <button
                                     class="button is-info is-uppercase has-brand-text"
                                     @click="approve"
+                                    v-if="!isLoading"
                             >
                                 Approve LP Stones
                             </button>
+                          <Spinner v-else />
                         </section>
                         <section v-else class="is-size-1 has-text-dark" style="margin-top: 100px;">
                             You need to go on a journey...find some LP stones and get your ass back here...
@@ -140,12 +142,14 @@
   import store from './store';
   import ThunderEggWrapper from './components/ThunderEggWrapper';
   import ThunderEggP5V2 from './components/ThunderEggP5V2';
+  import Spinner from './components/Spinner';
 
   export default {
-    components: {ThunderEggP5V2, ThunderEggWrapper},
+    components: {ThunderEggP5V2, ThunderEggWrapper, Spinner},
     setup() {
 
       const eggName = ref(null);
+      const isLoading = computed(() => store.state.isLoading);
       const account = computed(() => store.state.account);
       const hasThunderEgg = computed(() => store.state.hasThunderEgg);
       const myThunderEggStats = computed(() => store.state.myThunderEggStats);
@@ -169,6 +173,7 @@
         dp2,
         toEth,
         eggName,
+        isLoading,
         account,
         hasThunderEgg,
         myThunderEggStats,
