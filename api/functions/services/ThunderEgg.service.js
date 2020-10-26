@@ -10,22 +10,25 @@ module.exports = class ThunderEggService {
   }
 
   async thunderEggStats(eggId, groveId = 0) {
-    const {_owner, _birth, _lp, _lava, _name} = await this.contract.thunderEggStats(groveId, eggId);
+    //address _owner, uint256 _birth, uint256 _age, uint256 _lp, uint256 _lava, bytes32 _name
+    const {_owner, _birth, _age, _lp, _lava, _name} = await this.contract.thunderEggStats(groveId, eggId);
 
-    const name = await this.contract.name();
+    const contractName = await this.contract.name();
     const symbol = await this.contract.symbol();
     const tokenUri = await this.contract.tokenURI(eggId);
     const eggName = ethers.utils.parseBytes32String(_name);
 
     return {
-      name,
-      description: `Thunder egg #${eggName}`,
+      contractName,
       symbol,
+      name: `ThunderEgg #${eggId}`,
+      description: `My name is ${eggName}`,
       image: `https://us-central1-thunderegg-d26af.cloudfunctions.net/main/api/chain/${this.chainId}/image/${eggId}`,
       tokenUri,
       owner: _owner,
       birth: _birth.toString(),
       lp: _lp.toString(),
+      age: _age.toString(),
       lava: _lava.toString(),
       eggName: eggName,
     };
