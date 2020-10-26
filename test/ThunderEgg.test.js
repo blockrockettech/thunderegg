@@ -131,8 +131,14 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       statsPostDestroy._lava.should.be.bignumber.equal(ZERO);
     });
 
+    it('reverts when amount is zero', async () => {
+      await expectRevert(
+        this.thunderEgg.spawn(this.groveId, ZERO, ethers.utils.formatBytes32String("test"), {from: alice}),
+        "You must sacrifice your LP tokens to the gods!"
+      );
+    });
   });
-  
+
   context('God operations', () => {
     beforeEach(async () => {
       this.lava = await LavaToken.new(ZERO, thor, thor, {from: thor});
@@ -153,13 +159,14 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
     });
 
     it('should only allow god to addToPools', async () => {
+      this.newStakingToken = await MockERC20.new('LPToken', 'LP', ONE_THOUSAND_TOKENS.mul(new BN('4')), {from: thor});
 
       await expectRevert(
-        this.thunderEgg.addSacredGrove(new BN('100'), this.stakingToken.address, false, {from: alice}),
+        this.thunderEgg.addSacredGrove(new BN('100'), this.newStakingToken.address, false, {from: alice}),
         'Godable: caller is not the god'
       );
 
-      await this.thunderEgg.addSacredGrove(new BN('100'), this.stakingToken.address, false, {from: thor});
+      await this.thunderEgg.addSacredGrove(new BN('100'), this.newStakingToken.address, false, {from: thor});
     });
 
     it('should only allow god to set allocation points', async () => {
@@ -184,14 +191,6 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       await this.thunderEgg.end(this.pid, new BN('1000'), false, {from: thor});
       const sacredGrove = await this.thunderEgg.sacredGrove(this.pid);
       sacredGrove.endBlock.should.be.bignumber.equal('1000');
-    });
-
-    it('ensure endblock is greater than current block', async () => {
-
-      await expectRevert(
-        this.thunderEgg.end(this.pid, new BN('0'), false, {from: thor}),
-        'Must be in the future'
-      );
     });
 
     it('only god should be able to set base token', async () => {

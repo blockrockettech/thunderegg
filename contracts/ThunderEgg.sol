@@ -80,6 +80,8 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // The block number when mining starts.
     uint256 public startBlock;
 
+    mapping(address => bool) public isKnownSacredGrove;
+
     event Deposit(address indexed user, uint256 indexed groveId, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed groveId, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed groveId, uint256 amount);
@@ -112,8 +114,9 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // Mapping of eggId => owner
     mapping(uint256 => address) internal thunderEggIdToOwner;
     mapping(uint256 => uint256) internal thunderEggIdToBirth;
-    mapping(address => uint256) internal ownerToThunderEggId;
     mapping(uint256 => bytes32) internal thunderEggIdToName;
+
+    mapping(address => uint256) public ownerToThunderEggId;
 
     // Mapping of eggId => approved address
     mapping(uint256 => address) internal approvals;
@@ -142,12 +145,14 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         return sacredGrove.length;
     }
 
-    // Add a new lp to the pool. Can only be called by god!!
-    // NOTE: DO NOT add the same LP token more than once. Rewards will be messed up if you do.
+    // Add a new sacred grove. Can only be called by god!!
     function addSacredGrove(uint256 _allocPoint, IERC20 _lpToken, bool _withUpdate) public onlyGod {
+        require(!isKnownSacredGrove[address(_lpToken)], "This is already a known sacred grove");
+
         if (_withUpdate) {
             massUpdateSacredGroves();
         }
+
         uint256 lastRewardBlock = block.number > startBlock ? block.number : startBlock;
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
         sacredGrove.push(SacredGrove({
@@ -158,6 +163,8 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
             totalSupply : 0,
             endBlock : 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             }));
+
+        isKnownSacredGrove[address(_lpToken)] = true;
     }
 
     // Update the given grove's allocation point. Can only be called by the owner.
@@ -170,8 +177,6 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     }
 
     function end(uint256 _groveId, uint256 _endBlock, bool _withUpdate) public onlyGod {
-        require(_endBlock > block.number, "Must be in the future");
-
         SacredGrove storage grove = sacredGrove[_groveId];
         grove.endBlock = _endBlock;
 
@@ -191,9 +196,9 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         }
     }
 
-    function thunderEggStats(uint256 _groveId, uint256 _eggId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _lava, bytes32 _name) {
+    function thunderEggStats(uint256 _groveId, uint256 _eggId) external view returns (address _owner, uint256 _birth, uint256 _age, uint256 _lp, uint256 _lava, bytes32 _name) {
         if (!_exists(_eggId)) {
-            return (address(0x0), 0, 0, 0, bytes32(0x0));
+            return (address(0x0), 0, 0, 0, 0, bytes32(0x0));
         }
 
         ThunderEggInfo storage info = thunderEggInfoMapping[_groveId][_eggId];
@@ -201,6 +206,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         return (
         thunderEggIdToOwner[_eggId],
         thunderEggIdToBirth[_eggId],
+        block.number - thunderEggIdToBirth[_eggId],
         info.amount,
         _calculatePendingLava(_groveId, _eggId),
         thunderEggIdToName[_eggId]
@@ -266,6 +272,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // mint the ThunderEgg by depositing LP tokens,
     function spawn(uint256 _groveId, uint256 _amount, bytes32 _name) public {
         require(ownerToThunderEggId[msg.sender] == 0, "Thor has already blessed you with a ThunderEgg!");
+        require(_amount > 0, "You must sacrifice your LP tokens to the gods!");
 
         updateSacredGrove(_groveId);
 
@@ -276,10 +283,8 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         ThunderEggInfo storage info = thunderEggInfoMapping[_groveId][eggId];
 
         // credit the staked amount
-        if (_amount > 0) {
-            pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
-            info.amount = info.amount.add(_amount);
-        }
+        pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+        info.amount = info.amount.add(_amount);
 
         info.rewardDebt = info.amount.mul(pool.accLavaPerShare).div(1e18);
         emit Deposit(msg.sender, _groveId, _amount);
@@ -412,7 +417,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     }
 
     function tokenURI(uint256 _eggId) external view returns (string memory) {
-        require(_exists(_eggId), "must exist");
+        require(_exists(_eggId), "ERC721Metadata: URI query for nonexistent token");
         return Strings.strConcat(baseTokenURI, Strings.uint2str(_eggId));
     }
 
@@ -422,7 +427,6 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         address owner = thunderEggIdToOwner[_eggId];
 
         require(owner == msg.sender, "Must own the egg!");
-        require(owner != address(0), "ERC721_ZERO_OWNER_ADDRESS");
 
         SacredGrove storage pool = sacredGrove[_groveId];
 
@@ -477,20 +481,20 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     }
 
     function balanceOf(address _owner) override external view returns (uint256) {
-        require(_owner != address(0), "ERC721: owner query for nonexistent token");
+        require(_owner != address(0), "ERC721: balance query for the zero address");
         return ownerToThunderEggId[_owner] != 0 ? 1 : 0;
     }
 
     function transferFrom(address _from, address _to, uint256 _eggId) override public {
         require(
             _to != address(0),
-            "ERC721_ZERO_TO_ADDRESS"
+            "ERC721: transfer to the zero address"
         );
 
         address owner = ownerOf(_eggId);
         require(
             _from == owner,
-            "ERC721_OWNER_MISMATCH"
+            "ERC721: transfer of token that is not own"
         );
 
         address spender = msg.sender;
@@ -499,12 +503,14 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
             spender == owner ||
             isApprovedForAll(owner, spender) ||
             approvedAddress == spender,
-            "ERC721_INVALID_SPENDER"
+            "ERC721: transfer caller is not owner nor approved"
         );
 
         if (approvedAddress != address(0)) {
             approvals[_eggId] = address(0);
         }
+
+        emit Approval(owner, address(0), _eggId);
 
         thunderEggIdToOwner[_eggId] = _to;
         ownerToThunderEggId[_from] = 0;
@@ -518,7 +524,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     }
 
     function ownerOf(uint256 _eggId) override public view returns (address) {
-        require(_exists(_eggId), "ERC721: owner query for nonexistent token");
+        require(_exists(_eggId), "ERC721: operator query for nonexistent token");
         return thunderEggIdToOwner[_eggId];
     }
 

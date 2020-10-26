@@ -3,6 +3,8 @@ node_modules/
 /dist
 /build
 
+.env
+
 # local env files
 .env.local
 .env.*.local
@@ -33,3 +35,5 @@ coverageEnv
 # buidler
 /artifacts
 /cache
+
+.env
