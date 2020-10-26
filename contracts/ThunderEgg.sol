@@ -114,8 +114,9 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // Mapping of eggId => owner
     mapping(uint256 => address) internal thunderEggIdToOwner;
     mapping(uint256 => uint256) internal thunderEggIdToBirth;
-    mapping(address => uint256) internal ownerToThunderEggId;
     mapping(uint256 => bytes32) internal thunderEggIdToName;
+
+    mapping(address => uint256) public ownerToThunderEggId;
 
     // Mapping of eggId => approved address
     mapping(uint256 => address) internal approvals;
@@ -195,7 +196,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         }
     }
 
-    function thunderEggStats(uint256 _groveId, uint256 _eggId) external view returns (address _owner, uint256 _birth, uint256 _lp, uint256 _lava, bytes32 _name) {
+    function thunderEggStats(uint256 _groveId, uint256 _eggId) external view returns (address _owner, uint256 _birth, uint256 _age, uint256 _lp, uint256 _lava, bytes32 _name) {
         if (!_exists(_eggId)) {
             return (address(0x0), 0, 0, 0, bytes32(0x0));
         }
@@ -205,6 +206,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         return (
         thunderEggIdToOwner[_eggId],
         thunderEggIdToBirth[_eggId],
+        block.number - thunderEggIdToBirth[_eggId],
         info.amount,
         _calculatePendingLava(_groveId, _eggId),
         thunderEggIdToName[_eggId]
