@@ -4,6 +4,7 @@ import {ethers} from 'ethers';
 import {getContractAddressFromConf} from "@/utils";
 import ThunderEggContract from '../contracts/ThunderEgg.json';
 import StakingTokenContract from '../contracts/ERC20.json';
+import LavaTokenContract from '../contracts/LavaToken.json';
 
 const MAX_UINT256 = ethers.BigNumber.from('2').pow(ethers.BigNumber.from('256')).sub(ethers.BigNumber.from('1'));
 
@@ -86,9 +87,16 @@ export default createStore({
           signer
         );
 
+        const lavaToken = new ethers.Contract(
+          getContractAddressFromConf(LavaTokenContract, chain.chainId.toString()),
+          LavaTokenContract.abi,
+          signer
+        );
+
         commit('storeContracts', {
           thunderEgg,
           stakingToken,
+          lavaToken,
         });
 
         console.log('Bootstrapped with account', accounts[0]);
@@ -122,14 +130,24 @@ export default createStore({
 
       dispatch('loadThunderEggStats', eggId.toString());
     },
+    async heartbeat({dispatch, state, commit}) {
+      console.log('heartbeat', state.account);
+      if (state.account && state.contracts) {
+        const {thunderEgg} = state.contracts;
+
+        const eggId = await thunderEgg.ownerToThunderEggId(state.account);
+
+        dispatch('loadThunderEggStats', eggId.toString());
+        dispatch('loadCoreStats');
+
+        const hasThunderEgg = await thunderEgg.balanceOf(state.account);
+        commit('storeHasThunderEgg', hasThunderEgg.eq(ethers.BigNumber.from('1')));
+      }
+    },
     async loadThunderEggStats({commit, state}, eggId) {
       const {thunderEgg} = state.contracts;
 
-      commit('storeIsLoading', true);
-
       const thunderEggStats = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from(eggId));
-
-      commit('storeIsLoading', false);
 
       commit('storeMyThunderEggStats', {
         eggId: eggId,
@@ -142,22 +160,28 @@ export default createStore({
       });
     },
     async loadCoreStats({commit, state}) {
-      const {thunderEgg, stakingToken} = state.contracts;
+      const {thunderEgg, stakingToken, lavaToken} = state.contracts;
 
       const totalSupply = await thunderEgg.totalSupply();
       const lpTotalSupply = await stakingToken.totalSupply();
       const lavaPerBlock = await thunderEgg.lavaPerBlock();
+      const totalSpawned = await thunderEgg.totalSpawned();
+      const totalDestroyed = await thunderEgg.totalDestroyed();
+      const lavaTotalSupply = await lavaToken.totalSupply();
 
       commit('storeCoreStats', {
         totalSupply: totalSupply.toString(),
+        totalSpawned: totalSpawned.toString(),
+        totalDestroyed: totalDestroyed.toString(),
         lavaPerBlock: ethers.utils.formatEther(lavaPerBlock.toString()),
-        lpTotalSupply:  ethers.utils.formatEther(lpTotalSupply.toString()),
+        lpTotalSupply: ethers.utils.formatEther(lpTotalSupply.toString()),
+        lavaTotalSupply: ethers.utils.formatEther(lavaTotalSupply.toString()),
       });
     },
     async loadSpawnings({commit, state}) {
       const {thunderEgg} = state.contracts;
 
-      const supply = await thunderEgg.totalSupply();
+      const supply = await thunderEgg.tokenPointer();
 
       const spawnings = [];
       for (let x = 1; x <= parseInt(supply.toString()); x++) {
@@ -165,14 +189,14 @@ export default createStore({
         if (exists) {
           const thunderEggStats = await thunderEgg.thunderEggStats(state.groveId, ethers.BigNumber.from(ethers.BigNumber.from(x)));
           spawnings.push({
-              eggId: x.toString(),
-              owner: thunderEggStats[0],
-              birth: thunderEggStats[1].toString(),
-              age: thunderEggStats[2].toString(),
-              lp: ethers.utils.formatEther(thunderEggStats[3]),
-              lava: ethers.utils.formatEther(thunderEggStats[4]),
-              name: ethers.utils.parseBytes32String(thunderEggStats[5]),
-            });
+            eggId: x.toString(),
+            owner: thunderEggStats[0],
+            birth: thunderEggStats[1].toString(),
+            age: thunderEggStats[2].toString(),
+            lp: ethers.utils.formatEther(thunderEggStats[3]),
+            lava: ethers.utils.formatEther(thunderEggStats[4]),
+            name: ethers.utils.parseBytes32String(thunderEggStats[5]),
+          });
         }
       }
 

@@ -4,7 +4,7 @@
         <div class="has-text-weight-bold" style="padding-top: 75px;">
             <div class="columns">
                 <div class="column has-text-left is-size-2">#{{ eggId }}</div>
-                <div class="column has-text-centered is-size-2 ">{{ name }}</div>
+                <div class="column has-text-centered is-size-1 is-family-secondary">{{ name }}</div>
                 <div class="column has-text-right is-size-2">
                     {{age}}
                     <span class="is-size-6">blocks</span>

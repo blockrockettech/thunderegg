@@ -3,7 +3,7 @@
     <div class="card slate is-shadowless" style="padding-left: 75px; padding-right: 75px; height: 700px">
         <div class="has-text-weight-bold" style="padding-top: 75px;">
             <div class="columns">
-                <div class="column has-text-centered is-size-2 ">{{ name }}</div>
+                <div class="column has-text-centered is-size-1 is-family-secondary">{{ name }}</div>
             </div>
         </div>
         <div class="card-image has-text-centered">

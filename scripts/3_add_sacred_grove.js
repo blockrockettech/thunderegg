@@ -14,7 +14,9 @@ async function main() {
     deployer //provider
   );
 
-  await thunderEgg.addSacredGrove('100', process.env.THUNDEREGG_ADDRESS, true);
+  await thunderEgg.addSacredGrove('100', process.env.STAKING_TOKEN_ADDRESS, true);
+
+  await thunderEgg.setBaseTokenURI('https://us-central1-thunderegg-d26af.cloudfunctions.net/main/api/chain/4/metadata/');
 
   console.log('Adding sacred grove');
 }

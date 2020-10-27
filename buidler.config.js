@@ -4,9 +4,11 @@ usePlugin("@nomiclabs/buidler-truffle5");
 usePlugin("buidler-gas-reporter");
 usePlugin("solidity-coverage");
 usePlugin("@nomiclabs/buidler-solhint");
+require("@nomiclabs/buidler-etherscan");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY;
 
 module.exports = {
   solc: {
@@ -19,6 +21,9 @@ module.exports = {
   gasReporter: {
     currency: 'USD',
     enabled: false
+  },
+  etherscan: {
+    apiKey: ETHERSCAN_KEY
   },
   networks: {
     mainnet: {
