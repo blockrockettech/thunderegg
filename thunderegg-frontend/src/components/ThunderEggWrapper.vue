@@ -16,15 +16,15 @@
                 </div>
             </div>
         </div>
-        <div class="card-image has-text-centered">
+        <div class="card-image has-text-centered" style="margin-top: 50px">
             <slot>🥚</slot>
         </div>
         <div>
-            <div class="columns">
+            <div class="columns" style="margin-top: 50px">
                 <div class="column has-text-left">
                     <span class="is-uppercase is-size-6">LAVA</span>
                     <br/>
-                    <span class="is-size-3 has-text-weight-bold">{{ dp0(lava) }}</span>
+                    <span class="is-size-3 has-text-weight-bold">{{ dp2(lava) }}</span>
                 </div>
                 <div class="column has-text-right">
                     <span class="is-uppercase is-size-6">LP STONES</span>
@@ -43,8 +43,10 @@
     props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age'],
     setup: function () {
       const dp0 = (value) => value && parseFloat(value).toFixed(0);
+      const dp2 = (value) => value && parseFloat(value).toFixed(2);
       return {
         dp0,
+        dp2,
       };
     }
   };

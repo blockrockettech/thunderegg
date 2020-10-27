@@ -13,13 +13,13 @@
         <article class="is-hidden-mobile">
             <section class="content container" style="margin-left: 250px; margin-right: 250px; margin-bottom: 50px;">
                 <div class="columns">
-                    <div class="column is-half">
+                    <div class="column is-two-fifths">
                         <p class="has-lead-text">
                             Visit the
                             <o-tooltip label="Uniswap LAVA <> ETH Pair"
                                        style="text-decoration: underline;">unicorn
                             </o-tooltip>
-                            in the fertile lands where ETH catalyses with the ancient lava to mine magical
+                            in the fertile lands where ETH catalyses with the ancient LAVA to mine magical
                             <o-tooltip label="UniV2 ERC20 tokens"
                                        style="text-decoration: underline;">LP stones.
                             </o-tooltip>
@@ -57,7 +57,7 @@
                             blow.
                         </p>
                     </div>
-                    <div class="column is-half">
+                    <div class="column is-three-fifths">
                         <section v-if="account" class="content has-text-centered has-intro-text"
                                  style="border: 5px solid #6844b8; padding: 5px">
                             Welcome {{ account.substring(0, 6) + '...' }}
@@ -87,6 +87,7 @@
                                                     :lp-stones="myThunderEggStats.lp"
                                                     :name="myThunderEggStats.name"
                                                     :owner="myThunderEggStats.owner"
+                                                    style="min-height: 800px;"
                                             >
                                                 <thunder-egg-p5-v2
                                                         :egg-id="myThunderEggStats.eggId"
@@ -194,13 +195,14 @@
                 <h2 class="has-lead-text">Spawnings</h2>
                 <div class="columns is-multiline">
                     <div class="column is-half" v-for="spawn in spawnings" :key="spawn.eggId">
-                        <thunder-egg-light-wrapper :egg-id="spawn.eggId"
+                        <thunder-egg-wrapper :egg-id="spawn.eggId"
                                                    :lava="spawn.lava"
                                                    :birth="spawn.birth"
                                                    :age="spawn.age"
                                                    :lp-stones="spawn.lp"
                                                    :name="spawn.name"
                                                    :owner="spawn.owner"
+                                             style="min-height: 800px;"
                         >
                             <thunder-egg-p5-v2
                                     :egg-id="spawn.eggId"
@@ -213,7 +215,7 @@
                                     prefix="spawnings"
                             >
                             </thunder-egg-p5-v2>
-                        </thunder-egg-light-wrapper>
+                        </thunder-egg-wrapper>
                     </div>
                 </div>
             </section>
@@ -264,10 +266,9 @@
   import ThunderEggWrapper from './components/ThunderEggWrapper';
   import ThunderEggP5V2 from './components/ThunderEggP5V2';
   import Spinner from './components/Spinner';
-  import ThunderEggLightWrapper from './components/ThunderEggLightWrapper';
 
   export default {
-    components: {ThunderEggLightWrapper, ThunderEggP5V2, ThunderEggWrapper, Spinner},
+    components: {ThunderEggP5V2, ThunderEggWrapper, Spinner},
     setup: function () {
 
       const eggName = ref(null);
