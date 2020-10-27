@@ -4,7 +4,7 @@ Visit the unicorn in the fertile lands where ETH catalyses with the ancient lava
 
 Journey to the sacred groves of Thor where sacrificing LP stones will spawn you a mystical ThunderEgg!
 
-The quest can only be attempted once! So pick your runes carefully. Over time, if left to mature the ThunderEgg will increase it's mighty lava energy hour by hour. As the eggs grow old, and the lava grows within, the more enchanting and beautiful they become... 
+The quest can only be attempted **once**! So pick your runes carefully. Over time, if left to mature the ThunderEgg will increase it's mighty lava energy hour by hour. As the eggs grow old, and the lava grows within, the more enchanting and beautiful they become... 
 
 Be warned! The only way to reap the power of the ThunderEgg is to smite it with a mighty blow.
 
@@ -31,7 +31,7 @@ Notes from God:
 
 ## Gamification
 
-As LAVA is locked inside ThunderEggs you have a tricky decision to cash in the egg if and when the price of LAVA in Uniswap rockets?
+As LAVA is locked inside ThunderEggs you have a tricky decision to cash in the egg if and **when** the price of LAVA in Uniswap rockets?
 
 Or have strong hands as the NFT matures (with tokens and artistic value) that may eclipse the internal value... 
 
