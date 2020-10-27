@@ -1,20 +1,26 @@
 <template>
-    <div class="spinner-square" style="margin: 0 auto; margin-top: 5em; margin-bottom: 5em;">
-        <div class="square-1 square"></div>
-        <div class="square-2 square"></div>
-        <div class="square-3 square"></div>
+    <div>
+        <div class="spinner-square" style="margin: 0 auto; margin-top: 2em; margin-bottom: 2em;">
+            <div class="square-1 square"></div>
+            <div class="square-2 square"></div>
+            <div class="square-3 square"></div>
+        </div>
+        <div class="has-lead-warning-text">
+            {{ message }}
+        </div>
     </div>
 </template>
 
 <script>
     export default {
+        props: ['message'],
         name: 'Spinner',
     };
 </script>
 
 <style scoped lang="scss">
     $primary: #2d1464;
-    $secondary: #5433a4;
+    $secondary: #C3AAD4;
 
     .spinner-square {
         display: flex;

@@ -4,6 +4,7 @@
 
 <script>
   import P5 from 'p5';
+  // eslint-disable-next-line no-unused-vars
   import {ethers} from 'ethers';
 
   import {onMounted} from 'vue';
@@ -35,7 +36,7 @@
         // eslint-disable-next-line no-unused-vars
         let unit;
         // eslint-disable-next-line no-unused-vars
-        let brightness = age / 3000 * 128;
+        let brightness = age / 30000 * 128;
 
         // eslint-disable-next-line no-unused-vars
         let height = 400;
@@ -87,27 +88,11 @@
           //spots
 
           s.push();
-          s.translate(unit * 40 - s.map(decPairs[31], 0, 255, 0, unit * 5), unit * 40 - s.map(decPairs[30], 0, 255, unit * 3, unit * 5));
-          s.scale(s.map(decPairs[0], 0, 255, .02, .05) + age / 60000);
-          s.rotate(s.radians(s.map(decPairs[1], 0, 255, 0, 90)) + age / 500);
-
-          s.fill(0, 0, 90, age / 3000 * 128);
-          s.noStroke();
-          s.beginShape();
-          s.vertex(-unit * 20 - s.map(decPairs[5], 0, 255, 0, 50), -unit * 20 - s.map(decPairs[6], 0, 255, 0, 50));
-          s.bezierVertex(s.map(decPairs[7], 0, 255, 0, 50), -unit * 40 + s.map(decPairs[8], 0, 255, 0, 50), s.map(decPairs[9], 0, 255, 0, 50), -unit * 40 + s.map(decPairs[10], 0, 255, 0, 50), unit * 20, -unit * 20);
-          s.bezierVertex(unit * 40 + s.map(decPairs[15], 0, 255, 0, 50), -s.map(decPairs[16], 0, 255, 0, 50), unit * 40 + s.map(decPairs[18], 0, 255, 0, 50), s.map(decPairs[19], 0, 255, 0, 50), unit * 20, unit * 20);
-          s.bezierVertex(s.map(decPairs[20], 0, 255, 0, 50), unit * 40 - s.map(decPairs[21], 0, 255, 0, 50), -s.map(decPairs[22], 0, 255, 0, 50), unit * 40 - s.map(decPairs[23], 0, 255, 0, 50), -unit * 20, unit * 20);
-          s.bezierVertex(-unit * 40 - s.map(decPairs[13], 0, 255, 0, 50), 0 - s.map(decPairs[11], 0, 255, 0, 50), -unit * 40 - s.map(decPairs[12], 0, 255, 0, 50), s.map(decPairs[14], 0, 255, 0, 50), -unit * 20 - s.map(decPairs[5], 0, 255, 0, 50), -unit * 20 - s.map(decPairs[6], 0, 255, 0, 50));
-          s.endShape();
-          s.pop();
-
-          s.push();
           s.translate(unit * 40 - s.map(decPairs[15], 0, 255, unit * 5, unit * 10), unit * 40 - s.map(decPairs[16], 0, 255, 0, unit * 1.5));
           s.scale(s.map(decPairs[1], 0, 255, .02, .05) + age / 60000);
           s.rotate(s.radians(s.map(decPairs[2], 0, 255, 0, 90)) + age / 500);
 
-          s.fill(0, 0, 90, age / 3000 * 128);
+          s.fill(0, 0, 90, age / 30000 * 128);
           s.noStroke();
           s.beginShape();
           s.vertex(-unit * 20 - s.map(decPairs[9], 0, 255, 0, 50), -unit * 20 - s.map(decPairs[30], 0, 255, 0, 50));
@@ -123,7 +108,7 @@
           s.scale(s.map(decPairs[2], 0, 255, .02, .05) + age / 60000);
           s.rotate(s.radians(s.map(decPairs[3], 0, 255, 0, 90)) + age / 500);
 
-          s.fill(0, 0, 90, age / 3000 * 128);
+          s.fill(0, 0, 90, age / 30000 * 128);
           s.noStroke();
           s.beginShape();
           s.vertex(-unit * 20 - s.map(decPairs[9], 0, 255, 0, 50), -unit * 20 - s.map(decPairs[8], 0, 255, 0, 50));
@@ -134,7 +119,9 @@
           s.endShape();
           s.pop();
 
-          s.stroke(ethers.utils.formatBytes32String(props.name)%255,255,255,200);
+          // end spots
+
+          s.stroke(ethers.utils.formatBytes32String(props.name)%255,92,175,175);
           s.strokeWeight(1);
           s.noFill();
           s.push();

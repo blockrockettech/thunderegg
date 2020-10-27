@@ -144,8 +144,6 @@ export default createStore({
     async loadCoreStats({commit, state}) {
       const {thunderEgg, stakingToken} = state.contracts;
 
-
-
       const totalSupply = await thunderEgg.totalSupply();
       const lpTotalSupply = await stakingToken.totalSupply();
       const lavaPerBlock = await thunderEgg.lavaPerBlock();
@@ -199,6 +197,25 @@ export default createStore({
       commit('storeIsLoading', false);
 
       dispatch('loadThunderEgg');
+    },
+    async destroyThunderEgg({state, dispatch, commit}) {
+      console.log('Destroying egg for:', state.account);
+
+      const {thunderEgg} = state.contracts;
+
+      commit('storeIsLoading', true);
+
+      const tx = await thunderEgg.destroy(
+        state.groveId,
+        {from: state.account},
+      );
+
+      await tx.wait(1);
+
+      await dispatch('loadThunderEgg');
+      commit('storeHasThunderEgg', false); // shouldn't have one
+
+      commit('storeIsLoading', false);
     },
     async approveStakingTokens({state, commit}) {
       if (state.contracts && state.account) {

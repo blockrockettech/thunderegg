@@ -71,16 +71,8 @@
                         <section v-else-if="account && hasThunderEgg" class="has-text-centered">
                             <div class="columns is-centered">
                                 <div class="column" v-if="myThunderEggStats">
-                                    <thunder-egg-wrapper
-                                            :egg-id="myThunderEggStats.eggId"
-                                            :lava="myThunderEggStats.lava"
-                                            :birth="myThunderEggStats.birth"
-                                            :age="myThunderEggStats.age"
-                                            :lp-stones="myThunderEggStats.lp"
-                                            :name="myThunderEggStats.name"
-                                            :owner="myThunderEggStats.owner"
-                                    >
-                                        <thunder-egg-p5-v2
+                                    <div v-if="!isLoading">
+                                        <thunder-egg-wrapper
                                                 :egg-id="myThunderEggStats.eggId"
                                                 :lava="myThunderEggStats.lava"
                                                 :birth="myThunderEggStats.birth"
@@ -88,18 +80,29 @@
                                                 :lp-stones="myThunderEggStats.lp"
                                                 :name="myThunderEggStats.name"
                                                 :owner="myThunderEggStats.owner"
-                                                prefix="my"
                                         >
-                                        </thunder-egg-p5-v2>
-                                    </thunder-egg-wrapper>
-
-                                    <button
-                                            class="button is-danger is-outlined is-uppercase has-lead-text is-large"
-                                            @click="destroy"
-                                            style="margin-top: 50px"
-                                    >
-                                        Destroy ThunderEgg & Release $LAVA!
-                                    </button>
+                                            <thunder-egg-p5-v2
+                                                    :egg-id="myThunderEggStats.eggId"
+                                                    :lava="myThunderEggStats.lava"
+                                                    :birth="myThunderEggStats.birth"
+                                                    :age="myThunderEggStats.age"
+                                                    :lp-stones="myThunderEggStats.lp"
+                                                    :name="myThunderEggStats.name"
+                                                    :owner="myThunderEggStats.owner"
+                                                    prefix="my"
+                                            >
+                                            </thunder-egg-p5-v2>
+                                        </thunder-egg-wrapper>
+                                        <button
+                                                class="button is-danger is-outlined is-uppercase has-lead-text is-large"
+                                                @click="destroy"
+                                                style="margin-top: 50px"
+                                        >
+                                            Destroy ThunderEgg & Release $LAVA!
+                                        </button>
+                                    </div>
+                                    <spinner v-else
+                                             message="$LAVA flows slowly. May take a few strikes of Thor's hammer"/>
                                 </div>
                             </div>
                         </section>
@@ -119,7 +122,7 @@
                                     Spawn ThunderEgg!
                                 </button>
                             </div>
-                            <spinner v-else/>
+                            <spinner v-else message="Message sent to the Gods. Be patient it might be lunchtime..."/>
                         </section>
                         <section v-else-if="account && hasStakingTokenBalance && !hasStakingTokenAllowance"
                                  class="is-size-1 has-text-danger" style="margin-top: 100px;">
@@ -130,7 +133,8 @@
                             >
                                 Approve LP Stones
                             </button>
-                            <spinner v-else/>
+                            <spinner v-else
+                                     message="Approval asked of the Gods. We warned they are grumpy and slow..."/>
                         </section>
                         <section v-else class="has-warning-text has-background-grey-lighter"
                                  style="margin-top: 100px; padding: 30px;  border-radius: 25px;">
@@ -181,7 +185,7 @@
         <section class="container">
             <h2 class="has-lead-text">Spawnings</h2>
             <div class="columns is-multiline">
-                <div class="column is-one-third-desktop" v-for="spawn in spawnings" :key="spawn.eggId">
+                <div class="column is-half" v-for="spawn in spawnings" :key="spawn.eggId">
                     <thunder-egg-light-wrapper :egg-id="spawn.eggId"
                                                :lava="spawn.lava"
                                                :birth="spawn.birth"
@@ -243,7 +247,7 @@
       const connect = () => store.dispatch('bootstrap');
       const approve = () => store.dispatch('approveStakingTokens');
       const spawn = () => store.dispatch('spawnThunderEgg', eggName.value);
-      const destroy = () => store.dispatch('destroy');
+      const destroy = () => store.dispatch('destroyThunderEgg');
 
       const dp2 = (value) => value && parseFloat(value).toFixed(2);
       const toEth = (value) => value && ethers.utils.formatEther(value);
@@ -302,6 +306,13 @@
         font-size: 2rem;
         font-weight: bold;
         color: $primary;
+    }
+
+    .has-lead-warning-text {
+        font-family: 'Yanone Kaffeesatz', sans-serif;
+        font-size: 2rem;
+        font-weight: bold;
+        color: $darkprimary;
     }
 
     .has-intro-text {

@@ -110,6 +110,8 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
 
     // total supply across sacred groves
     uint256 public totalSupply;
+    uint256 public totalSpawned;
+    uint256 public totalDestroyed;
 
     // Mapping of eggId => owner
     mapping(uint256 => address) internal thunderEggIdToOwner;
@@ -401,6 +403,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         // MetaData
         grove.totalSupply = grove.totalSupply.add(1);
         totalSupply = totalSupply.add(1);
+        totalSpawned = totalSpawned.add(1);
 
         // Single Transfer event for a single token
         emit Transfer(address(0), _to, eggId);
@@ -435,6 +438,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
 
         pool.totalSupply = pool.totalSupply.sub(1);
         totalSupply = totalSupply.sub(1);
+        totalDestroyed = totalDestroyed.add(1);
 
         emit Transfer(
             owner,
