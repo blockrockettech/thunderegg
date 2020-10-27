@@ -17,13 +17,13 @@ Respect to all the giants who came before on who's shoulders we build ThunderEgg
 ThunderEggs are NFTs. LAVA is an ERC20 governance token.
 
 Steps to ThunderEgg enlightment:
-* Add liquidity to the ETH <> LAVA pair in Uniswap
-* Approve UniV2 tokens to "Sacred Grove" aka SushiSwap pool within the ThunderEgg smart contract
-* Contract spawns (aka mints) a ECR721 NFT with a name. One account per NFT max.
-* UniV2 tokens locked in the ThunderEgg (until destroyed)
-* Farmed $LAVA locked in the ThunderEgg (until destroyed)
-* Over time (blocks) the ThunderEgg changes in appearance and internal yield of LAVA increases relative to the staking LP stones (aka UniV2 ERC20 tokens)
-* You may choose to destroy the ThunderEgg. This is the only way to receive your LAVA and LP Stones but beware the egg is now gone forever.
+1. Add liquidity to the ETH <> LAVA pair in Uniswap
+1. Approve UniV2 tokens to "Sacred Grove" aka SushiSwap pool within the ThunderEgg smart contract
+1. Contract spawns (aka mints) a ECR721 NFT with a name. One account per NFT max.
+1. UniV2 tokens locked in the ThunderEgg (until destroyed)
+1. Farmed $LAVA locked in the ThunderEgg (until destroyed)
+1. Over time (blocks) the ThunderEgg changes in appearance and internal yield of LAVA increases relative to the staking LP stones (aka UniV2 ERC20 tokens)
+1. You may choose to destroy the ThunderEgg. This is the only way to receive your LAVA and LP Stones but beware the egg is now gone forever.
 
 Notes from God:
 * Thor can destroy the Sacred Grove at any point stopping the fertile production of ThunderEgg's LAVA yield.

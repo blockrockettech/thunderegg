@@ -233,7 +233,7 @@
                         X
                         <br/>
                         <a href="https://www.uxsequence.io/" target="_blank">
-                            <img src="./assets/br.svg" style="max-height: 75px; margin-top: 10px; margin-bottom: 10px"/>
+                            <img src="./assets/sequenceLogo.svg" style="max-height: 75px; margin-top: 10px; margin-bottom: 10px"/>
                         </a>
                         <br/>
                         X

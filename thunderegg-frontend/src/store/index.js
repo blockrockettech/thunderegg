@@ -133,7 +133,7 @@ export default createStore({
     async heartbeat({dispatch, state, commit}) {
       console.log('heartbeat', state.account);
       if (state.account && state.contracts) {
-        const {thunderEgg} = state.contracts;
+        const {thunderEgg, stakingToken} = state.contracts;
 
         const eggId = await thunderEgg.ownerToThunderEggId(state.account);
 
@@ -142,6 +142,12 @@ export default createStore({
 
         const hasThunderEgg = await thunderEgg.balanceOf(state.account);
         commit('storeHasThunderEgg', hasThunderEgg.eq(ethers.BigNumber.from('1')));
+
+        const stakingTokenBalance = await stakingToken.balanceOf(state.account);
+        commit('storeStakingTokenBalance', stakingTokenBalance);
+
+        const stakingTokenAllowance = await stakingToken.allowance(state.account, thunderEgg.address);
+        commit('storeHasStakingTokenAllowance', stakingTokenAllowance.gte(stakingTokenBalance));
       }
     },
     async loadThunderEggStats({commit, state}, eggId) {
