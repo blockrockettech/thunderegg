@@ -55,6 +55,9 @@
         };
 
         s.draw = () => {
+
+          // egg colour
+
           for (let i = 100; i > 0; i--) {
             let fillColor;
             colorA = s.color(step, 255, 255);
@@ -121,6 +124,8 @@
 
           // end spots
 
+          // cracks
+
           s.stroke(ethers.utils.formatBytes32String(props.name)%255,92,175,175);
           s.strokeWeight(1);
           s.noFill();
@@ -184,6 +189,8 @@
           s.line(xl2, yl2, xl4, yl4);
 
           s.pop();
+
+          // end cracks
 
           if (step > 40) {
             increase = false;

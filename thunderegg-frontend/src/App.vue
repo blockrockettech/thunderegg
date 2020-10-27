@@ -48,14 +48,10 @@
                         must be destroyed.</p>
                 </div>
                 <div class="column is-half">
-                    <section v-if="account" class="content has-text-centered has-lead-text">
-                        Welcome {{ account.substring(0, 8) + '...' }}
+                    <section v-if="account" class="content has-text-centered has-intro-text" style="border: 4px solid #C3AAD4; padding: 5px">
+                        Welcome {{ account.substring(0, 6) + '...' }}
                         <!--                        <br/>-->
                         <!--                        Staking balance: {{ dp2(toEth(stakingTokenBalance)) }}-->
-                        <!--                        <br/>-->
-                        <!--                        hasStakingTokenAllowance: {{ hasStakingTokenAllowance }}-->
-                        <!--                        <br/>-->
-                        <!--                        hasStakingTokenBalance: {{ hasStakingTokenBalance }}-->
                     </section>
 
                     <section class="has-text-centered" style="margin-bottom: 100px">
@@ -66,7 +62,7 @@
                             >
                                 Connect wallet
                             </button>
-                            <p class="has-text-danger">RINKEBY for testing ONLY!</p>
+                            <p class="has-text-danger has-text-weight-bold">Connect to RINKEBY</p>
                         </section>
                         <section v-else-if="account && hasThunderEgg" class="has-text-centered">
                             <div class="columns is-centered">
