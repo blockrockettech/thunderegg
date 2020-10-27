@@ -6,30 +6,30 @@
                 <div class="column has-text-left">
                     <span class="is-uppercase is-size-6">ID</span>
                     <br/>
-                    <span class="is-size-3 has-text-weight-bold">#{{ eggId }}</span>
+                    <span class="is-size-3 has-text-weight-bold" style="text-shadow:0px 1px 0 #FFFFFF;">#{{ eggId }}</span>
                 </div>
-                <div class="column has-text-centered is-size-1 is-family-secondary has-text-weight-bold">{{ name }}</div>
+                <div class="column has-text-centered is-size-1 is-family-secondary has-text-weight-bold" style="text-shadow:0px 1px 0 #FFFFFF;">{{ name }}</div>
                 <div class="column has-text-right">
                     <span class="is-uppercase is-size-6">AGE</span>
                     <br/>
-                    <span class="is-size-3 has-text-weight-bold">{{ age }}</span>
+                    <span class="is-size-3 has-text-weight-bold" style="text-shadow:0px 1px 0 #FFFFFF;">{{ age }}</span>
                 </div>
             </div>
         </div>
-        <div class="card-image has-text-centered" style="margin-top: 50px">
+        <div class="card-image has-text-centered" style="margin-top: 25px">
             <slot>🥚</slot>
         </div>
         <div>
-            <div class="columns" style="margin-top: 50px">
+            <div class="columns" style="margin-top: 25px">
                 <div class="column has-text-left">
                     <span class="is-uppercase is-size-6">LAVA</span>
                     <br/>
-                    <span class="is-size-3 has-text-weight-bold">{{ dp2(lava) }}</span>
+                    <span class="is-size-3 has-text-weight-bold" style="text-shadow:0px 1px 0 #FFFFFF;">{{ dp2(lava) }}</span>
                 </div>
                 <div class="column has-text-right">
-                    <span class="is-uppercase is-size-6">LP STONES</span>
+                    <span class="is-uppercase is-size-6" style="text-shadow:0px 1px 0 #FFFFFF;">LP STONES</span>
                     <br/>
-                    <span class="is-size-3 has-text-weight-bold">{{ dp0(lpStones) }}</span>
+                    <span class="is-size-3 has-text-weight-bold" style="text-shadow:0px 1px 0 #FFFFFF;">{{ dp0(lpStones) }}</span>
                 </div>
             </div>
         </div>

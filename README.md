@@ -1,5 +1,9 @@
 # ThunderEgg
 
+This is an entry in the Untitled NFT Hackathon (https://twitter.com/NFT_hack), full entry: https://hackmd.io/6nFMLBIbS6uTXsmsqNYc2g?view
+
+### Backstory
+
 Visit the unicorn in the fertile lands where ETH catalyses with the ancient lava to mine magical LP stones.
 
 Journey to the sacred groves of Thor where sacrificing LP stones will spawn you a mystical ThunderEgg!
