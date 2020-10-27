@@ -49,9 +49,13 @@
 
                         <p class="has-intro-text has-text-weight-bold">
                             Be warned! The only way to reap the power of the
-                            ThunderEgg is to <o-tooltip label="Destroy to release LAVA"
-                                                        style="text-decoration: underline;">smite</o-tooltip> it with a mighty
-                            blow.</p>
+                            ThunderEgg is to
+                            <o-tooltip label="Destroy to release LAVA"
+                                       style="text-decoration: underline;">smite
+                            </o-tooltip>
+                            it with a mighty
+                            blow.
+                        </p>
                     </div>
                     <div class="column is-half">
                         <section v-if="account" class="content has-text-centered has-intro-text"
@@ -219,11 +223,37 @@
         </article>
 
         <footer class="footer has-background-grey-lighter" style="margin-top: 100px;">
-            <div class="content has-text-centered">
-                <p class="has-warning-text">
-                    Built by BlockRocket x Sequence x Art on the Blockchain
-                </p>
-            </div>
+            <section class="level has-text-primary container">
+                <div class="level-item has-text-centered">
+                    <div class="is-block">
+                        <a href="https://blockrocket.tech/" target="_blank">
+                            <img src="./assets/br.svg" style="max-height: 75px; margin-top: 10px; margin-bottom: 10px"/>
+                        </a>
+                        <br/>
+                        X
+                        <br/>
+                        <a href="https://www.uxsequence.io/" target="_blank">
+                            <img src="./assets/br.svg" style="max-height: 75px; margin-top: 10px; margin-bottom: 10px"/>
+                        </a>
+                        <br/>
+                        X
+                        <br/>
+                        <div style="margin-top: 10px; margin-bottom: 10px">
+                            <a href="https://artblocks.io/" target="_blank" class="has-lead-text">ART BLOCKS</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="level-item has-text-centered">
+
+                </div>
+                <div class="level-item has-text-left">
+                    <ul class="is-size-4">
+                        <li>Twitter</li>
+                        <li>Telegram</li>
+                        <li>Github</li>
+                    </ul>
+                </div>
+            </section>
         </footer>
     </article>
 </template>
@@ -338,6 +368,10 @@
     .o-field .o-field-label {
         font-size: 1.5rem !important;
         font-family: 'Yanone Kaffeesatz', sans-serif;
+    }
+
+    li {
+        margin: 15px !important;
     }
 
     @import '~bulma';
