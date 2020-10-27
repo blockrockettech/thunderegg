@@ -14,39 +14,44 @@
             <section class="content container" style="margin-left: 250px; margin-right: 250px; margin-bottom: 50px;">
                 <div class="columns">
                     <div class="column is-half">
-                        <p class="has-lead-text">Visit the
+                        <p class="has-lead-text">
+                            Visit the
                             <o-tooltip label="Uniswap LAVA <> ETH Pair"
-                                       style="text-decoration: underline;">
-                                unicorn
+                                       style="text-decoration: underline;">unicorn
                             </o-tooltip>
-                            in the fertile lands where ETH font meets the ancient lava to mine magical
+                            in the fertile lands where ETH catalyses with the ancient lava to mine magical
                             <o-tooltip label="UniV2 ERC20 tokens"
-                                       style="text-decoration: underline;">LP
-                                stones.
+                                       style="text-decoration: underline;">LP stones.
                             </o-tooltip>
                         </p>
 
                         <p class="has-intro-text">Journey to the
                             <o-tooltip label="This smart contract & dApp"
                                        style="text-decoration: underline;">
-                                sacred grove
+                                sacred groves
                             </o-tooltip>
-                            and offer the LP stones up to spawn a mystical ThunderEgg!
+                            of Thor where sacrificing LP stones will spawn you a mystical
+                            ThunderEgg!
                         </p>
 
                         <p class="has-intro-text">The quest can only be attempted
                             <o-tooltip label="One ETH account only"
-                                       style="text-decoration: underline;">once
+                                       style="text-decoration: underline;">once.
                             </o-tooltip>
-                            so tread carefully.
+                            So pick your runes carefully.
                         </p>
 
-                        <p class="has-intro-text">Over time if left to mature the ThunderEgg will increase it’s lava energy
-                            hour by hour. The older
-                            and more lava the brighter and more beautiful they appear…</p>
+                        <p class="has-intro-text">
+                            Over time, if left to
+                            mature, the ThunderEgg will increase it's mighty lava energy hour by hour. As the eggs grow
+                            old, and the lava grows within, the more enchanting and beautiful they become...
+                        </p>
 
-                        <p class="has-intro-text has-text-weight-bold">Be warned. To reap the power of the ThunderEgg it
-                            must be destroyed.</p>
+                        <p class="has-intro-text has-text-weight-bold">
+                            Be warned! The only way to reap the power of the
+                            ThunderEgg is to <o-tooltip label="Destroy to release LAVA"
+                                                        style="text-decoration: underline;">smite</o-tooltip> it with a mighty
+                            blow.</p>
                     </div>
                     <div class="column is-half">
                         <section v-if="account" class="content has-text-centered has-intro-text"
@@ -100,7 +105,7 @@
                                             </button>
                                         </div>
                                         <spinner v-else
-                                                 message="LAVA flows slowly. May take a few strikes of Thor's hammer"/>
+                                                 message="LAVA flows slowly. May take a few strikes of Thor's hammer!"/>
                                     </div>
                                 </div>
                             </section>
@@ -120,7 +125,8 @@
                                         Spawn ThunderEgg!
                                     </button>
                                 </div>
-                                <spinner v-else message="Message sent to the Gods. Be patient it might be lunchtime..."/>
+                                <spinner v-else
+                                         message="Message sent to the Gods. Be patient it might be lunchtime..."/>
                             </section>
                             <section v-else-if="account && hasStakingTokenBalance && !hasStakingTokenAllowance"
                                      class="is-size-1 has-text-danger" style="margin-top: 100px;">

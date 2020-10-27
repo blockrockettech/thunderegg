@@ -9,9 +9,12 @@
         <div class="card-image has-text-centered">
             <slot>🥚</slot>
         </div>
-        <div class="is-size-4 has-text-weight-bold">
+        <div >
             <div class="columns">
-                <div class="column has-text-centered">$LAVA {{ lava }}</div>
+                <div class="column has-text-centered">
+                    <span class="is-size-3 has-text-weight-bold">{{ dp0(lava) }}</span>
+                    <span class="is-uppercase is-size-6">&nbsp;LAVA</span>
+                </div>
             </div>
         </div>
     </div>
@@ -21,6 +24,12 @@
 <script>
   export default {
     props: ['eggId', 'owner', 'lava', 'lpStones', 'birth', 'name', 'age'],
+    setup: function () {
+      const dp0 = (value) => value && parseFloat(value).toFixed(0);
+      return {
+        dp0,
+      };
+    }
   };
 </script>
 

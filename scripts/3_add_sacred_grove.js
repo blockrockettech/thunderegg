@@ -16,9 +16,11 @@ async function main() {
 
   await thunderEgg.addSacredGrove('100', process.env.STAKING_TOKEN_ADDRESS, true);
 
+  console.log('Adding sacred grove');
+
   await thunderEgg.setBaseTokenURI('https://us-central1-thunderegg-d26af.cloudfunctions.net/main/api/chain/4/metadata/');
 
-  console.log('Adding sacred grove');
+  console.log('Set base token URI');
 }
 
 main()
