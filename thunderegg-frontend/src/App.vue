@@ -13,7 +13,7 @@
         <article class="is-hidden-mobile">
             <section class="content container" style="margin-left: 250px; margin-right: 250px; margin-bottom: 50px;">
                 <div class="columns">
-                    <div class="column is-two-fifths">
+                    <div class="column is-half">
                         <p class="has-lead-text">
                             Visit the
                             <o-tooltip label="Uniswap LAVA <> ETH Pair"
@@ -57,7 +57,7 @@
                             blow.
                         </p>
                     </div>
-                    <div class="column is-three-fifths">
+                    <div class="column is-half">
                         <section v-if="account" class="content has-text-centered has-intro-text"
                                  style="border: 5px solid #6844b8; padding: 5px">
                             Welcome {{ account.substring(0, 6) + '...' }}
