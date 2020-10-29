@@ -1,6 +1,6 @@
 <template>
-    <div class="card slate is-shadowless p-6" style="width: 590px;">
-        <div class="" style="padding-top: 100px; padding-left: 50px; padding-right: 50px;">
+    <div class="card slate is-shadowless" style="transform: scale(0.8); transform-origin: top;">
+        <div class="" style="padding-top: 160px; padding-left: 40px; padding-right: 40px;">
             <div class="columns">
                 <div class="column has-text-left">
                     <span class="is-uppercase is-size-6">ID</span>
@@ -22,7 +22,7 @@
         <div class="card-image has-text-centered" style="margin-top: -100px;">
             <slot>🥚</slot>
         </div>
-        <div style="padding-left: 50px; padding-right: 50px;">
+        <div style="padding-left: 40px; padding-right: 40px; margin-top: -100px;">
             <div class="columns" style="margin-top: 25px">
                 <div class="column has-text-left">
                     <span class="is-uppercase is-size-6">LAVA</span>
@@ -59,5 +59,6 @@
 
     .slate {
         background: url('/slate-large.png') no-repeat center center;
+        /*background-size: 100%;*/
     }
 </style>

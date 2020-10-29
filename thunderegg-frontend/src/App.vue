@@ -13,7 +13,7 @@
         <article class="is-hidden-mobile">
             <section class="content container" style="margin-left: 250px; margin-right: 250px; margin-bottom: 50px;">
                 <div class="columns">
-                    <div class="column is-half">
+                    <div class="column is-two-fifths">
                         <p class="has-lead-text">
                             Visit the
                             <o-tooltip label="Uniswap LAVA <> ETH Pair"
@@ -57,7 +57,10 @@
                             blow.
                         </p>
                     </div>
-                    <div class="column is-half">
+                    <div class="column is-one-fifth">
+
+                    </div>
+                    <div class="column is-two-fifths">
                         <section v-if="account" class="content has-text-centered has-intro-text"
                                  style="border: 5px solid #6844b8; padding: 5px">
                             Welcome {{ account.substring(0, 6) + '...' }}
@@ -158,7 +161,7 @@
             </section>
 
             <section class="level has-text-primary container"
-                     style="border: 5px solid #6844b8; padding: 5px; margin-bottom: 100px" v-if="coreStats">
+                     style="border: 5px solid #6844b8; padding: 5px; margin-bottom: 25px" v-if="coreStats">
                 <div class="level-item has-text-centered">
                     <div>
                         <p class="is-size-5 is-uppercase is-marginless">ThunderEggs</p>
@@ -193,8 +196,8 @@
 
             <section class="container" v-if="spawnings && spawnings.length > 0">
                 <h2 class="has-lead-text">Spawnings</h2>
-                <div class="columns is-multiline">
-                    <div class="column is-half" v-for="spawn in spawnings" :key="spawn.eggId">
+                <div class="columns is-multiline is-gapless">
+                    <div class="column is-one-third" v-for="spawn in spawnings" :key="spawn.eggId">
                         <thunder-egg-wrapper :egg-id="spawn.eggId"
                                                    :lava="spawn.lava"
                                                    :birth="spawn.birth"
@@ -220,6 +223,7 @@
                 </div>
             </section>
         </article>
+
         <article class="is-mobile is-hidden-tablet has-lead-text has-text-centered">
             Please check out ThunderEgg on a Desktop machine!
         </article>
