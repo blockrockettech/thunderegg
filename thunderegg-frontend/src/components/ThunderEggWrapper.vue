@@ -59,6 +59,6 @@
 
     .slate {
         background: url('/slate-large.png') no-repeat center center;
-        /*background-size: 100%;*/
+        background-size: 100% 100%;
     }
 </style>
