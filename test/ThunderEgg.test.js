@@ -91,11 +91,14 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       _name.should.be.equal(ethers.utils.formatBytes32String("test"));
     });
 
-    it('should spawn and release Lava and LP stones when destroyed', async () => {
+    it.only('should spawn and release Lava and LP stones when destroyed', async () => {
 
       await time.advanceBlockTo('150');
 
       await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+
+      // before any updates
+      (await this.lava.balanceOf(thor)).should.be.bignumber.equal(ZERO);
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
       (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ONE);
@@ -117,8 +120,12 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       await this.thunderEgg.destroy(this.groveId, {from: alice});
 
+      // 6 blocks * lava per block (1) * 0.0125 (aka 1.25 %)
+      const godsOffering = await this.thunderEgg.godsOffering();
+      (await this.lava.balanceOf(thor)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('6')).div(godsOffering));
+
       // one more block passed when destroying so 5 + 1 x lava per block
-      (await this.lava.balanceOf(alice)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(6)));
+      (await this.lava.balanceOf(alice)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('6')));
       (await this.stakingToken.balanceOf(alice)).should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ZERO);

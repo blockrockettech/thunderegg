@@ -28,7 +28,8 @@ module.exports = {
   networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-      accounts: [`0x${PRIVATE_KEY}`]
+      accounts: [`0x${PRIVATE_KEY}`],
+      gasPrice: 20000000000, // 20 gwei
     },
     ropsten: {
       gasPrice: 5000000000, // 5 gwei

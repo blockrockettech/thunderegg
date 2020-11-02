@@ -68,6 +68,9 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // Bonus muliplier for early makers.
     uint256 public constant BONUS_MULTIPLIER = 10;
 
+    // Offering to the GODS
+    uint256 public godsOffering = 80; // 1.25%
+
     // Info of each grove.
     SacredGrove[] public sacredGrove;
 
@@ -265,6 +268,10 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         uint256 multiplier = getMultiplier(grove.lastRewardBlock, block.number <= grove.endBlock ? block.number : grove.endBlock);
         uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(grove.allocPoint).div(totalAllocPoint);
 
+        // offering to the gods
+        lava.mint(god(), lavaReward.div(godsOffering));
+
+        // reward for ThunderEggs
         lava.mint(address(this), lavaReward);
 
         grove.accLavaPerShare = grove.accLavaPerShare.add(lavaReward.mul(1e18).div(lpSupply));
@@ -371,6 +378,10 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         }
 
         return true;
+    }
+
+    function setGodsOffering(uint256 _godsOffering) external onlyGod {
+        godsOffering = _godsOffering;
     }
 
     function setBaseTokenURI(string calldata _uri) external onlyGod {
