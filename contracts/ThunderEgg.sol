@@ -83,7 +83,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // The block number when mining starts.
     uint256 public startBlock;
 
-    mapping(address => bool) public isKnownSacredGrove;
+    mapping(address => bool) public isSacredGrove;
 
     event Deposit(address indexed user, uint256 indexed groveId, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed groveId, uint256 amount);
@@ -152,7 +152,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
 
     // Add a new sacred grove. Can only be called by god!!
     function addSacredGrove(uint256 _allocPoint, IERC20 _lpToken, bool _withUpdate) public onlyGod {
-        require(!isKnownSacredGrove[address(_lpToken)], "This is already a known sacred grove");
+        require(!isSacredGrove[address(_lpToken)], "This is already a known sacred grove");
 
         if (_withUpdate) {
             massUpdateSacredGroves();
@@ -169,7 +169,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
             endBlock : 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             }));
 
-        isKnownSacredGrove[address(_lpToken)] = true;
+        isSacredGrove[address(_lpToken)] = true;
     }
 
     // Update the given grove's allocation point. Can only be called by the owner.

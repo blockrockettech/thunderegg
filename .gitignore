@@ -37,3 +37,7 @@ coverageEnv
 /cache
 
 .env
+
+/.coverage_cache
+/.coverage_artifacts
+/.coverage_contracts

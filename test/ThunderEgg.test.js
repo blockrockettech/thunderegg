@@ -17,6 +17,7 @@ const to18DP = (value) => {
 contract('ThunderEgg', ([thor, alice, bob, carol]) => {
   const ONE_THOUSAND_TOKENS = to18DP('1000');
   const ONE = new BN('1');
+  const TWO = new BN('2');
   const EGG_ID_ONE = new BN('1');
   const ZERO = new BN('0');
 
@@ -81,17 +82,20 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       await time.advanceBlockTo('55');
 
+      // 4 blocks have passed
+      (await this.thunderEgg.pendingLava(this.groveId, EGG_ID_ONE)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('4')));
+
       await this.thunderEgg.massUpdateSacredGroves();
 
       const {_owner, _birth, _lp, _lava, _name} = await this.thunderEgg.thunderEggStats(this.groveId, ONE);
       _owner.should.be.equal(alice);
       _birth.should.be.bignumber.equal('51'); // first block after start
       _lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
-      _lava.should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(5)));
+      _lava.should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('5')));
       _name.should.be.equal(ethers.utils.formatBytes32String("test"));
     });
 
-    it.only('should spawn and release Lava and LP stones when destroyed', async () => {
+    it('should spawn and release Lava and LP stones when destroyed', async () => {
 
       await time.advanceBlockTo('150');
 
@@ -203,10 +207,24 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
     it('only god should be able to set base token', async () => {
 
       await expectRevert(
-        this.thunderEgg.setBaseTokenURI(('https://example.com/path/resource.txt#fragment'), {from: alice}),
+        this.thunderEgg.setBaseTokenURI('https://example.com', {from: alice}),
         'Godable: caller is not the god'
       );
 
+      await this.thunderEgg.setBaseTokenURI('https://example.com', {from: thor});
+      (await this.thunderEgg.baseTokenURI()).should.be.equal('https://example.com');
+    });
+
+    it('only god should be able to set offerring amount', async () => {
+
+      await expectRevert(
+        this.thunderEgg.setGodsOffering(TWO, {from: alice}),
+        'Godable: caller is not the god'
+      );
+
+      await this.thunderEgg.setGodsOffering(TWO, {from: thor});
+
+      (await this.thunderEgg.godsOffering()).should.be.bignumber.equal('2');
     });
 
     it('after initial setting only god can set name of egg', async () => {
