@@ -14,6 +14,8 @@
 
     setup(props) {
       const sketch = (s) => {
+        const maxAge = 500000;
+
         let hashPairs = [];
         for (let j = 0; j < 32; j++) {
           hashPairs.push(props.owner.slice(2 + (j * 2), 4 + (j * 2)));
@@ -36,7 +38,7 @@
         // eslint-disable-next-line no-unused-vars
         let unit;
         // eslint-disable-next-line no-unused-vars
-        let brightness = age / 30000 * 1288;
+        let brightness = age < maxAge ? age / maxAge * 128 : 128;
 
         // eslint-disable-next-line no-unused-vars
         let height = 400;
@@ -92,7 +94,7 @@
 
           s.push();
           s.translate(unit * 40 - s.map(decPairs[15], 0, 255, unit * 5, unit * 10), unit * 40 - s.map(decPairs[16], 0, 255, 0, unit * 1.5));
-          s.scale(s.map(decPairs[1], 0, 255, .02, .05) + age / 60000);
+          s.scale(s.map(decPairs[0], 0, 255, .02, .05) + age < maxAge ? age / 6500000 : 0.077);
           s.rotate(s.radians(s.map(decPairs[2], 0, 255, 0, 90)) + age / 500);
 
           s.fill(0, 0, 90, age / 30000 * 128);
@@ -108,7 +110,7 @@
 
           s.push();
           s.translate(unit * 40 - s.map(decPairs[15], 0, 255, -unit * 2, -unit * 10), unit * 40 - s.map(decPairs[16], 0, 255, -unit, -unit * 5));
-          s.scale(s.map(decPairs[2], 0, 255, .02, .05) + age / 60000);
+          s.scale(s.map(decPairs[1], 0, 255, .02, .05) + age < maxAge ? age / 6500000 : 0.077);
           s.rotate(s.radians(s.map(decPairs[3], 0, 255, 0, 90)) + age / 500);
 
           s.fill(0, 0, 90, age / 30000 * 128);
@@ -126,7 +128,7 @@
 
           // cracks
 
-          s.stroke(ethers.utils.formatBytes32String(props.name)%255,92,175,175);
+          s.stroke(ethers.utils.formatBytes32String(props.name) % 255, 92, 175, 175);
           s.strokeWeight(1);
           s.noFill();
           s.push();
@@ -152,14 +154,14 @@
           let radians3 = radians2 - s.map(decPairs[1], 0, 255, 30, 40);
           let radians4 = radians3 + s.map(decPairs[2], 0, 255, 10, 35);
 
-          let xr1 = xr - unit * s.map(decPairs[13], 0, 255, 1, 2) * (age < 1000 ? age / 1000 : 1) * s.cos(s.radians(radians1));
-          let yr1 = yr - unit * s.map(decPairs[13], 0, 255, 1, 2) * (age < 1000 ? age / 1000 : 1) * s.sin(s.radians(radians1));
-          let xr2 = xr1 - unit * s.map(decPairs[14], 0, 255, 0.5, 1.5) * (age > 1000 && age < 2000 ? (age / 1001) % 1 : age > 1000 && age > 2000 ? 1 : 0) * s.cos(s.radians(radians2));
-          let yr2 = yr1 - unit * s.map(decPairs[14], 0, 255, 0.5, 1.5) * (age > 1000 && age < 2000 ? (age / 1001) % 1 : age > 1000 && age > 2000 ? 1 : 0) * s.sin(s.radians(radians2));
-          let xr3 = xr2 - unit * s.map(decPairs[15], 0, 255, 0.5, 1) * (age > 2001 ? (age / 1001) % 1 : 0) * s.cos(s.radians(radians3));
-          let yr3 = yr2 - unit * s.map(decPairs[15], 0, 255, 0.5, 1) * (age > 2001 ? (age / 1001) % 1 : 0) * s.sin(s.radians(radians3));
-          let xr4 = xr2 - unit * s.map(decPairs[16], 0, 255, 0.5, 1) * (age > 2001 ? (age / 1001) % 1 : 0) * s.cos(s.radians(radians4));
-          let yr4 = yr2 - unit * s.map(decPairs[16], 0, 255, 0.5, 1) * (age > 2001 ? (age / 1001) % 1 : 0) * s.sin(s.radians(radians4));
+          let xr1 = xr - unit * s.map(decPairs[13], 0, 255, 1, 2) * (age < 200000 ? age / 200000 : 1) * s.cos(s.radians(radians1));
+          let yr1 = yr - unit * s.map(decPairs[13], 0, 255, 1, 2) * (age < 200000 ? age / 200000 : 1) * s.sin(s.radians(radians1));
+          let xr2 = xr1 - unit * s.map(decPairs[14], 0, 255, 0.5, 1.5) * (age > 200000 && age < 400000 ? (age / 200001 % 1) : age > 200000 && age > 400000 ? 1 : 0) * s.cos(s.radians(radians2));
+          let yr2 = yr1 - unit * s.map(decPairs[14], 0, 255, 0.5, 1.5) * (age > 200000 && age < 400000 ? (age / 200001 % 1) : age > 200000 && age > 400000 ? 1 : 0) * s.sin(s.radians(radians2));
+          let xr3 = xr2 - unit * s.map(decPairs[15], 0, 255, 0.5, 1) * (age > 400001 ? (age < 500000 ? age / 100001 % 1 : 1) : 0) * s.cos(s.radians(radians3));
+          let yr3 = yr2 - unit * s.map(decPairs[15], 0, 255, 0.5, 1) * (age > 400001 ? (age < 500000 ? age / 100001 % 1 : 1) : 0) * s.sin(s.radians(radians3));
+          let xr4 = xr2 - unit * s.map(decPairs[16], 0, 255, 0.5, 1) * (age > 400001 ? (age < 500000 ? age / 100001 % 1 : 1) : 0) * s.cos(s.radians(radians4));
+          let yr4 = yr2 - unit * s.map(decPairs[16], 0, 255, 0.5, 1) * (age > 400001 ? (age < 500000 ? age / 100001 % 1 : 1) : 0) * s.sin(s.radians(radians4));
 
           s.strokeWeight(unit / s.map(decPairs[0], 0, 255, 4, 8));
           s.line(xr, yr, xr1, yr1);
@@ -172,15 +174,14 @@
           let radians7 = radians6 - s.map(decPairs[4], 0, 255, 30, 40);
           let radians8 = radians7 + s.map(decPairs[5], 0, 255, 10, 35);
 
-          let xl1 = xl + unit * s.map(decPairs[17], 0, 255, 1, 2) * (age < 1000 ? age / 1000 : 1) * s.cos(s.radians(radians5));
-          let yl1 = yl - unit * s.map(decPairs[17], 0, 255, 1, 2) * (age < 1000 ? age / 1000 : 1) * s.sin(s.radians(radians5));
-          let xl2 = xl1 + unit * s.map(decPairs[18], 0, 255, 0.5, 1.5) * (age > 1000 && age < 2000 ? (age / 1001) % 1 : age > 1000 && age > 2000 ? 1 : 0) * s.cos(s.radians(radians6));
-          let yl2 = yl1 - unit * s.map(decPairs[18], 0, 255, 0.5, 1.5) * (age > 1000 && age < 2000 ? (age / 1001) % 1 : age > 1000 && age > 2000 ? 1 : 0) * s.sin(s.radians(radians6));
-          let xl3 = xl2 - unit * s.map(decPairs[19], 0, 255, 0.5, 1.25) * (age > 2001 ? (age / 1001) % 1 : 0) * s.cos(s.radians(radians7));
-          let yl3 = yl2 - unit * s.map(decPairs[19], 0, 255, 0.5, 1.25) * (age > 2001 ? (age / 1001) % 1 : 0) * s.sin(s.radians(radians7));
-          let xl4 = xl2 - unit * s.map(decPairs[20], 0, 255, 1, 1.1) * (age > 2001 ? (age / 1001) % 1 : 0) * s.cos(s.radians(radians8));
-          let yl4 = yl2 - unit * s.map(decPairs[20], 0, 255, 1, 1.1) * (age > 2001 ? (age / 1001) % 1 : 0) * s.sin(s.radians(radians8));
-
+          let xl1 = xl + unit * s.map(decPairs[17], 0, 255, 1, 2) * (age < 200000 ? age / 200000 : 1) * s.cos(s.radians(radians5));
+          let yl1 = yl - unit * s.map(decPairs[17], 0, 255, 1, 2) * (age < 200000 ? age / 200000 : 1) * s.sin(s.radians(radians5));
+          let xl2 = xl1 + unit * s.map(decPairs[18], 0, 255, 0.5, 1.5) * (age > 200000 && age < 400000 ? (age / 200001 % 1) : age > 200000 && age > 400000 ? 1 : 0) * s.cos(s.radians(radians6));
+          let yl2 = yl1 - unit * s.map(decPairs[18], 0, 255, 0.5, 1.5) * (age > 200000 && age < 400000 ? (age / 200001 % 1) : age > 200000 && age > 400000 ? 1 : 0) * s.sin(s.radians(radians6));
+          let xl3 = xl2 - unit * s.map(decPairs[19], 0, 255, 0.5, 1.25) * (age > 400001 ? (age < 500000 ? age / 100001 % 1 : 1) : 0) * s.cos(s.radians(radians7));
+          let yl3 = yl2 - unit * s.map(decPairs[19], 0, 255, 0.5, 1.25) * (age > 400001 ? (age < 500000 ? age / 100001 % 1 : 1) : 0) * s.sin(s.radians(radians7));
+          let xl4 = xl2 - unit * s.map(decPairs[20], 0, 255, 1, 1.1) * (age > 400001 ? (age < 500000 ? age / 100001 % 1 : 1) : 0) * s.cos(s.radians(radians8));
+          let yl4 = yl2 - unit * s.map(decPairs[20], 0, 255, 1, 1.1) * (age > 400001 ? (age < 500000 ? age / 100001 % 1 : 1) : 0) * s.sin(s.radians(radians8));
 
           s.strokeWeight(unit / s.map(decPairs[25], 0, 255, 4, 8));
           s.line(xl, yl, xl1, yl1);
@@ -191,6 +192,10 @@
           s.pop();
 
           // end cracks
+
+          if (age < maxAge) {
+            age = age + 1;
+          }
 
           if (step > 40) {
             increase = false;
