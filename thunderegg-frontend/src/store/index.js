@@ -6,6 +6,8 @@ import ThunderEggContract from '../contracts/ThunderEgg.json';
 import StakingTokenContract from '../contracts/ERC20.json';
 import LavaTokenContract from '../contracts/LavaToken.json';
 
+import axios from 'axios';
+
 const MAX_UINT256 = ethers.BigNumber.from('2').pow(ethers.BigNumber.from('256')).sub(ethers.BigNumber.from('1'));
 
 export default createStore({
@@ -22,7 +24,8 @@ export default createStore({
     hasThunderEgg: null,
     spawnings: [],
     coreStats: null,
-    groveId: 0, // just one exists initially
+    groveId: 0, // just one exists initially,
+    countdown: null,
   },
   mutations: {
     storeIsLoading(state, loading) {
@@ -58,6 +61,9 @@ export default createStore({
     },
     storeCoreStats(state, coreStats) {
       state.coreStats = coreStats;
+    },
+    storeCountdown(state, countdown) {
+      state.countdown = countdown;
     },
   },
   actions: {
@@ -132,6 +138,13 @@ export default createStore({
     },
     async heartbeat({dispatch, state, commit}) {
       console.log('heartbeat', state.account);
+
+      const {data, status} = await axios.get('http://api.etherscan.io/api?module=block&action=getblockcountdown&blockno=11189999&apikey=NCKJ3RAKMXS5CPVP2JMUREGBV94YAENAB4');
+      if (status === 200) {
+        console.log(data.result);
+        commit('storeCountdown', data.result);
+      }
+
       if (state.account && state.contracts) {
         const {thunderEgg, stakingToken} = state.contracts;
 
