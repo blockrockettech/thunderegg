@@ -4,7 +4,7 @@ module.exports = class ThunderEggService {
 
   constructor(chainId) {
     this.chainId = chainId;
-    const network = ethers.providers.getNetwork(this.chainId);
+    const network = ethers.providers.getNetwork(parseInt(this.chainId));
     this.provider = ethers.providers.getDefaultProvider(network);
     this.contract = new ethers.Contract(require('../contracts/ThunderEgg.json').networks[this.chainId].address, require('../contracts/ThunderEgg.json').abi, this.provider);
   }
