@@ -139,7 +139,7 @@ export default createStore({
     async heartbeat({dispatch, state, commit}) {
       console.log('heartbeat', state.account);
 
-      const {data, status} = await axios.get('http://api.etherscan.io/api?module=block&action=getblockcountdown&blockno=11189999&apikey=NCKJ3RAKMXS5CPVP2JMUREGBV94YAENAB4');
+      const {data, status} = await axios.get('https://api.etherscan.io/api?module=block&action=getblockcountdown&blockno=11189999&apikey=NCKJ3RAKMXS5CPVP2JMUREGBV94YAENAB4');
       if (status === 200) {
         commit('storeCountdown', data.result);
       }
