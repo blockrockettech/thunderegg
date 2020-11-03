@@ -36,7 +36,7 @@
         // eslint-disable-next-line no-unused-vars
         let unit;
         // eslint-disable-next-line no-unused-vars
-        let brightness = age / 30000 * 128;
+        let brightness = age / 30000 * 1288;
 
         // eslint-disable-next-line no-unused-vars
         let height = 400;
