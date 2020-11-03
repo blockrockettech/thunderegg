@@ -4,9 +4,9 @@ module.exports = class ThunderEggService {
 
   constructor(chainId) {
     this.chainId = chainId;
-    const network = ethers.providers.getNetwork(4);
+    const network = ethers.providers.getNetwork(this.chainId);
     this.provider = ethers.providers.getDefaultProvider(network);
-    this.contract = new ethers.Contract(require('../contracts/ThunderEgg.json').networks['4'].address, require('../contracts/ThunderEgg.json').abi, this.provider);
+    this.contract = new ethers.Contract(require('../contracts/ThunderEgg.json').networks[this.chainId].address, require('../contracts/ThunderEgg.json').abi, this.provider);
   }
 
   async thunderEggStats(eggId, groveId = 0) {
