@@ -257,6 +257,7 @@
                         <li><a href="https://twitter.com/ThunderEggNFT" target="_blank" class="has-lead-text">Twitter</a></li>
                         <li><a href="https://t.me/ThunderEggNFT" target="_blank" class="has-lead-text">Telegram</a></li>
                         <li><a href="https://github.com/blockrockettech/thunderegg" target="_blank" class="has-lead-text">Github</a></li>
+                        <li><a href="https://medium.com/blockrocket/thunderegg-40e0c9d65ffa" target="_blank" class="has-lead-text">Medium</a></li>
                     </ul>
                 </div>
             </section>
