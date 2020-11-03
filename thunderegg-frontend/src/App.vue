@@ -61,7 +61,6 @@
 
                     </div>
                     <div class="column is-two-fifths">
-                        <p class="is-size-2">{{countdown}}</p>
                         <section v-if="account" class="content has-text-centered has-intro-text"
                                  style="border: 5px solid #6844b8; padding: 5px">
                             Welcome {{ account.substring(0, 6) + '...' }}
@@ -69,7 +68,13 @@
                             <!--                        Staking balance: {{ dp2(toEth(stakingTokenBalance)) }}-->
                         </section>
 
-                        <section class="has-text-centered" style="margin-bottom: 100px">
+
+                        <section v-if="countdown && parseInt(countdown.RemainingBlock) > 0" class="has-text-centered">
+                            <span class="has-mega-lead-text">{{ countdown.RemainingBlock }} blocks to go</span>
+                            <br/>
+                            <span class="has-lead-text has-text-danger">LAVA will flow from the skies!</span>
+                        </section>
+                        <section class="has-text-centered" style="margin-bottom: 100px" v-else>
                             <section v-if="!account">
                                 <button
                                         class="button is-primary is-uppercase has-lead-text is-large"
@@ -350,6 +355,13 @@
     .has-lead-text {
         font-family: 'Yanone Kaffeesatz', sans-serif;
         font-size: 2rem;
+        font-weight: bold;
+        color: $primary;
+    }
+
+    .has-mega-lead-text {
+        font-family: 'Yanone Kaffeesatz', sans-serif;
+        font-size: 4rem;
         font-weight: bold;
         color: $primary;
     }

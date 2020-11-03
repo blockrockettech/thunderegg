@@ -141,7 +141,6 @@ export default createStore({
 
       const {data, status} = await axios.get('http://api.etherscan.io/api?module=block&action=getblockcountdown&blockno=11189999&apikey=NCKJ3RAKMXS5CPVP2JMUREGBV94YAENAB4');
       if (status === 200) {
-        console.log(data.result);
         commit('storeCountdown', data.result);
       }
 
