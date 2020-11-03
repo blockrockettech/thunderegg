@@ -76,7 +76,6 @@
                                 >
                                     Connect wallet
                                 </button>
-                                <p class="has-text-danger has-text-weight-bold">Connect to RINKEBY</p>
                             </section>
                             <section v-else-if="account && hasThunderEgg" class="has-text-centered">
                                 <div class="columns is-centered">
