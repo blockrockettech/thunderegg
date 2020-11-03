@@ -253,9 +253,9 @@
                 </div>
                 <div class="level-item has-text-left">
                     <ul class="is-size-4">
-                        <li>Twitter</li>
-                        <li>Telegram</li>
-                        <li>Github</li>
+                        <li><a href="https://twitter.com/ThunderEggNFT" target="_blank" class="has-lead-text">Twitter</a></li>
+                        <li><a href="https://t.me/ThunderEggNFT" target="_blank" class="has-lead-text">Telegram</a></li>
+                        <li><a href="https://github.com/blockrockettech/thunderegg" target="_blank" class="has-lead-text">Github</a></li>
                     </ul>
                 </div>
             </section>
