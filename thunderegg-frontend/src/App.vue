@@ -61,6 +61,7 @@
 
                     </div>
                     <div class="column is-two-fifths">
+                        <p class="is-size-2">{{countdown}}</p>
                         <section v-if="account" class="content has-text-centered has-intro-text"
                                  style="border: 5px solid #6844b8; padding: 5px">
                             Welcome {{ account.substring(0, 6) + '...' }}
@@ -285,6 +286,7 @@
       const hasStakingTokenAllowance = computed(() => store.state.hasStakingTokenAllowance);
       const spawnings = computed(() => store.state.spawnings);
       const coreStats = computed(() => store.state.coreStats);
+      const countdown = computed(() => store.state.countdown);
 
       const connect = () => store.dispatch('bootstrap');
       const approve = () => store.dispatch('approveStakingTokens');
@@ -315,6 +317,7 @@
         hasStakingTokenAllowance,
         spawnings,
         coreStats,
+        countdown,
       };
     }
   };
