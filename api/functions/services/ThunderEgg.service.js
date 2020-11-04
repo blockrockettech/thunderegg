@@ -9,7 +9,8 @@ module.exports = class ThunderEggService {
     this.contract = new ethers.Contract(require('../contracts/ThunderEgg.json').networks[this.chainId].address, require('../contracts/ThunderEgg.json').abi, this.provider);
   }
 
-  async thunderEggStats(eggId, groveId = 0) {
+  // genesis is #1
+  async thunderEggStats(eggId, groveId = 1) {
     //address _owner, uint256 _birth, uint256 _age, uint256 _lp, uint256 _lava, bytes32 _name
     const {_owner, _birth, _age, _lp, _lava, _name} = await this.contract.thunderEggStats(groveId, eggId);
 
