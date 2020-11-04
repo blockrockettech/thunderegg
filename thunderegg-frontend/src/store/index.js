@@ -24,7 +24,7 @@ export default createStore({
     hasThunderEgg: null,
     spawnings: [],
     coreStats: null,
-    groveId: 0, // just one exists initially,
+    groveId: 1, // just one exists initially, 0 was messed up!?
     countdown: null,
   },
   mutations: {

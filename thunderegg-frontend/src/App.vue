@@ -74,7 +74,7 @@
                             <br/>
                             <span class="has-lead-text has-text-danger">LAVA will flow from the skies!</span>
                         </section>
-                        <section class="has-text-centered" style="margin-bottom: 100px" v-else>
+                        <section class="has-text-centered" style="margin-bottom: 100px;margin-top: 100px">
                             <section v-if="!account">
                                 <button
                                         class="button is-primary is-uppercase has-lead-text is-large"
