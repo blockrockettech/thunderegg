@@ -27,11 +27,28 @@ module.exports = class ThunderEggService {
       image: `https://us-central1-thunderegg-d26af.cloudfunctions.net/main/api/chain/${this.chainId}/image/${eggId}`,
       tokenUri,
       owner: _owner,
-      birth: _birth.toString(),
-      lp: _lp.toString(),
-      age: _age.toString(),
-      lava: _lava.toString(),
-      eggName: eggName,
+      attributes: [
+        {
+          'trait_type': 'Birth',
+          'value': _birth.toString()
+        },
+        {
+          'trait_type': 'LP',
+          'value': _lp.toString()
+        },
+        {
+          'trait_type': 'Age',
+          'value': _age.toString()
+        },
+        {
+          'trait_type': 'Lava',
+          'value': _lava.toString()
+        },
+        {
+          'trait_type': 'Name',
+          'value': eggName
+        },
+      ]
     };
   }
 
