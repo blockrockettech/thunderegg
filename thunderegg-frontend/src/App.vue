@@ -259,10 +259,17 @@
                 </div>
                 <div class="level-item has-text-left">
                     <ul class="is-size-4">
-                        <li><a href="https://twitter.com/ThunderEggNFT" target="_blank" class="has-lead-text">Twitter</a></li>
-                        <li><a href="https://t.me/ThunderEggNFT" target="_blank" class="has-lead-text">Telegram</a></li>
-                        <li><a href="https://github.com/blockrockettech/thunderegg" target="_blank" class="has-lead-text">Github</a></li>
-                        <li><a href="https://medium.com/blockrocket/thunderegg-40e0c9d65ffa" target="_blank" class="has-lead-text">Medium</a></li>
+                        <li><a href="https://twitter.com/ThunderEggNFT" target="_blank" class="has-intro-text">Twitter</a></li>
+                        <li><a href="https://t.me/ThunderEggNFT" target="_blank" class="has-intro-text">Telegram</a></li>
+                        <li><a href="https://github.com/blockrockettech/thunderegg" target="_blank" class="has-intro-text">Github</a></li>
+                        <li><a href="https://medium.com/blockrocket/thunderegg-40e0c9d65ffa" target="_blank" class="has-intro-text">Medium</a></li>
+                    </ul>
+                </div>
+                <div class="level-item has-text-left">
+                    <ul class="is-size-4">
+                        <li><a href="https://etherscan.io/address/0x4ee4d45620c2ed1a46d5ad1555bb79166f6cf34d" target="_blank" class="has-intro-text">ThunderEgg Smart Contract</a></li>
+                        <li><a href="https://etherscan.io/address/0x9144a650d1da46f3d15dc644a2aff01d4d4681d4" target="_blank" class="has-intro-text">LAVA Smart Contract</a></li>
+                        <li><a href="https://info.uniswap.org/pair/0xbd14cf87f2bef0ad704ee962a220d4492695eb4b" target="_blank" class="has-intro-text">Uniswap Pair</a></li>
                     </ul>
                 </div>
             </section>
