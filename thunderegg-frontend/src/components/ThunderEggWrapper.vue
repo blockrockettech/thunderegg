@@ -1,6 +1,13 @@
 <template>
     <div class="card slate is-shadowless" style="transform: scale(0.8); transform-origin: top;">
-        <div class="" style="padding-top: 160px; padding-left: 40px; padding-right: 40px;">
+        <div class="" style="padding-top: 100px; padding-left: 40px; padding-right: 40px;">
+            <div class="columns">
+
+                <div class="column has-text-centered is-size-1 is-family-secondary has-text-weight-bold"
+                     style="text-shadow:0px 1px 0 #FFFFFF;">{{ name }}
+                </div>
+
+            </div>
             <div class="columns">
                 <div class="column has-text-left">
                     <span class="is-uppercase is-size-6">ID</span>
@@ -8,8 +15,7 @@
                     <span class="is-size-3 has-text-weight-bold"
                           style="text-shadow:0px 1px 0 #FFFFFF;">#{{ eggId }}</span>
                 </div>
-                <div class="column has-text-centered is-size-1 is-family-secondary has-text-weight-bold"
-                     style="text-shadow:0px 1px 0 #FFFFFF;">{{ name }}
+                <div class="column has-text-centered is-size-1 is-family-secondary has-text-weight-bold">
                 </div>
                 <div class="column has-text-right">
                     <span class="is-uppercase is-size-6">AGE</span>
@@ -33,7 +39,7 @@
                 <div class="column has-text-right">
                     <span class="is-uppercase is-size-6" style="text-shadow:0px 1px 0 #FFFFFF;">LP STONES</span>
                     <br/>
-                    <span class="is-size-3 has-text-weight-bold" style="text-shadow:0px 1px 0 #FFFFFF;">{{ dp0(lpStones) }}</span>
+                    <span class="is-size-3 has-text-weight-bold" style="text-shadow:0px 1px 0 #FFFFFF;">{{ dp2(lpStones) }}</span>
                 </div>
             </div>
         </div>
