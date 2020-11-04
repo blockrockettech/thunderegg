@@ -270,6 +270,7 @@
                         <li><a href="https://etherscan.io/address/0x4ee4d45620c2ed1a46d5ad1555bb79166f6cf34d" target="_blank" class="has-intro-text">ThunderEgg Smart Contract</a></li>
                         <li><a href="https://etherscan.io/address/0x9144a650d1da46f3d15dc644a2aff01d4d4681d4" target="_blank" class="has-intro-text">LAVA Smart Contract</a></li>
                         <li><a href="https://info.uniswap.org/pair/0xbd14cf87f2bef0ad704ee962a220d4492695eb4b" target="_blank" class="has-intro-text">Uniswap Pair</a></li>
+                        <li><a href="https://opensea.io/assets/thunderegg" target="_blank" class="has-intro-text">OpenSea</a></li>
                     </ul>
                 </div>
             </section>
