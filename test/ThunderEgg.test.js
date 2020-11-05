@@ -17,6 +17,7 @@ const to18DP = (value) => {
 contract('ThunderEgg', ([thor, alice, bob, carol]) => {
   const ONE_THOUSAND_TOKENS = to18DP('1000');
   const ONE = new BN('1');
+  const TWO = new BN('2');
   const EGG_ID_ONE = new BN('1');
   const ZERO = new BN('0');
 
@@ -81,13 +82,16 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       await time.advanceBlockTo('55');
 
+      // 4 blocks have passed
+      (await this.thunderEgg.pendingLava(this.groveId, EGG_ID_ONE)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('4')));
+
       await this.thunderEgg.massUpdateSacredGroves();
 
       const {_owner, _birth, _lp, _lava, _name} = await this.thunderEgg.thunderEggStats(this.groveId, ONE);
       _owner.should.be.equal(alice);
       _birth.should.be.bignumber.equal('51'); // first block after start
       _lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
-      _lava.should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(5)));
+      _lava.should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('5')));
       _name.should.be.equal(ethers.utils.formatBytes32String("test"));
     });
 
@@ -96,6 +100,9 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       await time.advanceBlockTo('150');
 
       await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+
+      // before any updates
+      (await this.lava.balanceOf(thor)).should.be.bignumber.equal(ZERO);
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
       (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ONE);
@@ -117,8 +124,12 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
 
       await this.thunderEgg.destroy(this.groveId, {from: alice});
 
+      // 6 blocks * lava per block (1) * 0.0125 (aka 1.25 %)
+      const godsOffering = await this.thunderEgg.godsOffering();
+      (await this.lava.balanceOf(thor)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('6')).div(godsOffering));
+
       // one more block passed when destroying so 5 + 1 x lava per block
-      (await this.lava.balanceOf(alice)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN(6)));
+      (await this.lava.balanceOf(alice)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('6')));
       (await this.stakingToken.balanceOf(alice)).should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ZERO);
@@ -196,10 +207,24 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
     it('only god should be able to set base token', async () => {
 
       await expectRevert(
-        this.thunderEgg.setBaseTokenURI(('https://example.com/path/resource.txt#fragment'), {from: alice}),
+        this.thunderEgg.setBaseTokenURI('https://example.com', {from: alice}),
         'Godable: caller is not the god'
       );
 
+      await this.thunderEgg.setBaseTokenURI('https://example.com', {from: thor});
+      (await this.thunderEgg.baseTokenURI()).should.be.equal('https://example.com');
+    });
+
+    it('only god should be able to set offerring amount', async () => {
+
+      await expectRevert(
+        this.thunderEgg.setGodsOffering(TWO, {from: alice}),
+        'Godable: caller is not the god'
+      );
+
+      await this.thunderEgg.setGodsOffering(TWO, {from: thor});
+
+      (await this.thunderEgg.godsOffering()).should.be.bignumber.equal('2');
     });
 
     it('after initial setting only god can set name of egg', async () => {

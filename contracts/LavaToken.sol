@@ -12,7 +12,7 @@ pragma experimental ABIEncoderV2;
 
 contract LavaToken {
     ///@dev EIP-20 token name for this token
-    string public constant name = "Lava Token";
+    string public constant name = "Lava ThunderEgg Token";
 
     ///@dev EIP-20 token symbol for this token
     string public constant symbol = "LAVA";

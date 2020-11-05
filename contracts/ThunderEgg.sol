@@ -68,6 +68,9 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // Bonus muliplier for early makers.
     uint256 public constant BONUS_MULTIPLIER = 10;
 
+    // Offering to the GODS
+    uint256 public godsOffering = 80; // 1.25%
+
     // Info of each grove.
     SacredGrove[] public sacredGrove;
 
@@ -80,7 +83,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
     // The block number when mining starts.
     uint256 public startBlock;
 
-    mapping(address => bool) public isKnownSacredGrove;
+    mapping(address => bool) public isSacredGrove;
 
     event Deposit(address indexed user, uint256 indexed groveId, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed groveId, uint256 amount);
@@ -149,7 +152,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
 
     // Add a new sacred grove. Can only be called by god!!
     function addSacredGrove(uint256 _allocPoint, IERC20 _lpToken, bool _withUpdate) public onlyGod {
-        require(!isKnownSacredGrove[address(_lpToken)], "This is already a known sacred grove");
+        require(!isSacredGrove[address(_lpToken)], "This is already a known sacred grove");
 
         if (_withUpdate) {
             massUpdateSacredGroves();
@@ -166,7 +169,7 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
             endBlock : 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             }));
 
-        isKnownSacredGrove[address(_lpToken)] = true;
+        isSacredGrove[address(_lpToken)] = true;
     }
 
     // Update the given grove's allocation point. Can only be called by the owner.
@@ -265,6 +268,10 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         uint256 multiplier = getMultiplier(grove.lastRewardBlock, block.number <= grove.endBlock ? block.number : grove.endBlock);
         uint256 lavaReward = multiplier.mul(lavaPerBlock).mul(grove.allocPoint).div(totalAllocPoint);
 
+        // offering to the gods
+        lava.mint(god(), lavaReward.div(godsOffering));
+
+        // reward for ThunderEggs
         lava.mint(address(this), lavaReward);
 
         grove.accLavaPerShare = grove.accLavaPerShare.add(lavaReward.mul(1e18).div(lpSupply));
@@ -371,6 +378,10 @@ contract ThunderEgg is Godable, IERC721Token, ERC165 {
         }
 
         return true;
+    }
+
+    function setGodsOffering(uint256 _godsOffering) external onlyGod {
+        godsOffering = _godsOffering;
     }
 
     function setBaseTokenURI(string calldata _uri) external onlyGod {

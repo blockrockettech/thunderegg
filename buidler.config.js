@@ -4,7 +4,7 @@ usePlugin("@nomiclabs/buidler-truffle5");
 usePlugin("buidler-gas-reporter");
 usePlugin("solidity-coverage");
 usePlugin("@nomiclabs/buidler-solhint");
-require("@nomiclabs/buidler-etherscan");
+usePlugin("@nomiclabs/buidler-etherscan");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
@@ -28,7 +28,8 @@ module.exports = {
   networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-      accounts: [`0x${PRIVATE_KEY}`]
+      accounts: [`0x${PRIVATE_KEY}`],
+      gasPrice: 24000000000, // 24 gwei
     },
     ropsten: {
       gasPrice: 5000000000, // 5 gwei

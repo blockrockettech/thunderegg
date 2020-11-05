@@ -18,7 +18,7 @@ async function main() {
 
   console.log('Adding sacred grove');
 
-  await thunderEgg.setBaseTokenURI('https://us-central1-thunderegg-d26af.cloudfunctions.net/main/api/chain/4/metadata/');
+  await thunderEgg.setBaseTokenURI('https://us-central1-thunderegg-d26af.cloudfunctions.net/main/api/chain/1/metadata/');
 
   console.log('Set base token URI');
 }
