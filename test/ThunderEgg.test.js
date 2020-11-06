@@ -14,7 +14,7 @@ const to18DP = (value) => {
   return new BN(value).mul(new BN('10').pow(new BN('18')));
 };
 
-contract('ThunderEgg', ([thor, alice, bob, carol]) => {
+contract('ThunderEgg', ([thor, alice, bob, bob2, carol]) => {
   const ONE_THOUSAND_TOKENS = to18DP('1000');
   const ONE = new BN('1');
   const TWO = new BN('2');
@@ -68,6 +68,54 @@ contract('ThunderEgg', ([thor, alice, bob, carol]) => {
       this.groveId = (await this.thunderEgg.sacredGroveLength()).sub(ONE);
 
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
+      await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: bob});
+    });
+
+    it.only('Can recover a grieffed egg', async () => {
+      await time.advanceBlockTo('50');
+
+      await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+
+      (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.exists(EGG_ID_ONE)).should.be.equal(true);
+      (await this.thunderEgg.ownerOf(ONE)).should.be.equal(alice);
+      (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal(ONE);
+
+      const {_owner, _lp, _name} = await this.thunderEgg.thunderEggStats(this.groveId, ONE);
+      _owner.should.be.equal(alice);
+      _lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
+      _name.should.be.equal(ethers.utils.formatBytes32String("test"));
+
+      await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test2"), {from: bob});
+
+      (await this.thunderEgg.balanceOf(bob)).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(TWO);
+      (await this.thunderEgg.exists(EGG_ID_ONE)).should.be.equal(true);
+      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(bob);
+      (await this.thunderEgg.ownerToThunderEggId(bob)).should.be.bignumber.equal(TWO);
+
+      const bobStats = await this.thunderEgg.thunderEggStats(this.groveId, TWO);
+      bobStats._owner.should.be.equal(bob);
+      bobStats._lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
+      bobStats._name.should.be.equal(ethers.utils.formatBytes32String("test2"));
+
+      await this.thunderEgg.transferFrom(alice, bob, ONE, {from: alice});
+      (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal(ZERO);
+      (await this.thunderEgg.ownerToThunderEggId(bob)).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.ownerOf(ONE)).should.be.equal(bob);
+      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(bob);
+
+      await this.thunderEgg.transferFrom(bob, alice, ONE, {from: bob});
+      (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.ownerOf(ONE)).should.be.equal(alice);
+
+      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(bob);
+      (await this.thunderEgg.ownerToThunderEggId(bob)).should.be.bignumber.equal(ZERO);
+
+      await this.thunderEgg.transferFrom(bob, bob2, TWO, {from: bob});
+      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(bob2);
+      (await this.thunderEgg.ownerToThunderEggId(bob2)).should.be.bignumber.equal(TWO);
     });
 
     it('should spawn eggs when LP stones are offered to the gods', async () => {
