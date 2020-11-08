@@ -78,6 +78,8 @@ contract('ThunderEgg', ([thor, alice, bob, badActor, carol]) => {
       await time.advanceBlockTo('50');
 
       const name = ethers.utils.formatBytes32String("good grief");
+
+      // spawn Alice a ThunderEgg (ID #1)
       await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, name, {from: alice});
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
@@ -90,6 +92,7 @@ contract('ThunderEgg', ([thor, alice, bob, badActor, carol]) => {
       aliceStats._owner.should.be.equal(alice);
       aliceStats._lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
 
+      // spawn BadActor a ThunderEgg (ID #2)
       await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("bad actor"), {from: badActor});
 
       (await this.thunderEgg.balanceOf(badActor)).should.be.bignumber.equal(ONE);
