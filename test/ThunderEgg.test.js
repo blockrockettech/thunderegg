@@ -14,11 +14,12 @@ const to18DP = (value) => {
   return new BN(value).mul(new BN('10').pow(new BN('18')));
 };
 
-contract('ThunderEgg', ([thor, alice, bob, bob2, carol]) => {
+contract('ThunderEgg', ([thor, alice, bob, badActor, carol]) => {
   const ONE_THOUSAND_TOKENS = to18DP('1000');
   const ONE = new BN('1');
   const TWO = new BN('2');
   const EGG_ID_ONE = new BN('1');
+  const EGG_ID_TWO = new BN('2');
   const ZERO = new BN('0');
 
   const LAVA_PER_BLOCK = to18DP('1');
@@ -48,10 +49,11 @@ contract('ThunderEgg', ([thor, alice, bob, bob2, carol]) => {
     beforeEach(async () => {
       this.lava = await LavaToken.new(ZERO, thor, thor, {from: thor});
 
-      this.stakingToken = await MockERC20.new('LPToken', 'LP', ONE_THOUSAND_TOKENS.mul(new BN('4')), {from: thor});
+      this.stakingToken = await MockERC20.new('LPToken', 'LP', ONE_THOUSAND_TOKENS.mul(new BN('5')), {from: thor});
       await this.stakingToken.transfer(alice, ONE_THOUSAND_TOKENS, {from: thor});
       await this.stakingToken.transfer(bob, ONE_THOUSAND_TOKENS, {from: thor});
       await this.stakingToken.transfer(carol, ONE_THOUSAND_TOKENS, {from: thor});
+      await this.stakingToken.transfer(badActor, ONE_THOUSAND_TOKENS, {from: thor});
 
       this.thunderEgg = await ThunderEgg.new(
         this.lava.address,
@@ -69,12 +71,14 @@ contract('ThunderEgg', ([thor, alice, bob, bob2, carol]) => {
 
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: alice});
       await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: bob});
+      await this.stakingToken.approve(this.thunderEgg.address, ONE_THOUSAND_TOKENS, {from: badActor});
     });
 
-    it.only('Can recover a grieffed egg', async () => {
+    it.only('Can recover a griefed egg', async () => {
       await time.advanceBlockTo('50');
 
-      await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test"), {from: alice});
+      const name = ethers.utils.formatBytes32String("good grief");
+      await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, name, {from: alice});
 
       (await this.thunderEgg.balanceOf(alice)).should.be.bignumber.equal(ONE);
       (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ONE);
@@ -82,40 +86,65 @@ contract('ThunderEgg', ([thor, alice, bob, bob2, carol]) => {
       (await this.thunderEgg.ownerOf(ONE)).should.be.equal(alice);
       (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal(ONE);
 
-      const {_owner, _lp, _name} = await this.thunderEgg.thunderEggStats(this.groveId, ONE);
-      _owner.should.be.equal(alice);
-      _lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
-      _name.should.be.equal(ethers.utils.formatBytes32String("test"));
+      const aliceStats = await this.thunderEgg.thunderEggStats(this.groveId, EGG_ID_ONE);
+      aliceStats._owner.should.be.equal(alice);
+      aliceStats._lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
 
-      await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("test2"), {from: bob});
+      await this.thunderEgg.spawn(this.groveId, ONE_THOUSAND_TOKENS, ethers.utils.formatBytes32String("bad actor"), {from: badActor});
 
-      (await this.thunderEgg.balanceOf(bob)).should.be.bignumber.equal(ONE);
+      (await this.thunderEgg.balanceOf(badActor)).should.be.bignumber.equal(ONE);
       (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(TWO);
-      (await this.thunderEgg.exists(EGG_ID_ONE)).should.be.equal(true);
-      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(bob);
-      (await this.thunderEgg.ownerToThunderEggId(bob)).should.be.bignumber.equal(TWO);
+      (await this.thunderEgg.exists(EGG_ID_TWO)).should.be.equal(true);
+      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(badActor);
+      (await this.thunderEgg.ownerToThunderEggId(badActor)).should.be.bignumber.equal(TWO);
 
-      const bobStats = await this.thunderEgg.thunderEggStats(this.groveId, TWO);
-      bobStats._owner.should.be.equal(bob);
-      bobStats._lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
-      bobStats._name.should.be.equal(ethers.utils.formatBytes32String("test2"));
+      const badActorStats = await this.thunderEgg.thunderEggStats(this.groveId, EGG_ID_TWO);
+      badActorStats._owner.should.be.equal(badActor);
+      badActorStats._lp.should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
 
-      await this.thunderEgg.transferFrom(alice, bob, ONE, {from: alice});
-      (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal(ZERO);
-      (await this.thunderEgg.ownerToThunderEggId(bob)).should.be.bignumber.equal(ONE);
-      (await this.thunderEgg.ownerOf(ONE)).should.be.equal(bob);
-      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(bob);
+      // griefed thunderegg #1
+      // Not supposed to have two but the transfer does not enforce this...🐛
+      // This is pretty pointless as you are just sending free value to Alice!?
+      await this.thunderEgg.transferFrom(badActor, alice, EGG_ID_TWO, {from: badActor});
+      (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal(EGG_ID_TWO);
+      (await this.thunderEgg.ownerToThunderEggId(badActor)).should.be.bignumber.equal(ZERO);
 
-      await this.thunderEgg.transferFrom(bob, alice, ONE, {from: bob});
-      (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal(ONE);
-      (await this.thunderEgg.ownerOf(ONE)).should.be.equal(alice);
+      // Alice still owns both...
+      (await this.thunderEgg.ownerOf(EGG_ID_ONE)).should.be.equal(alice);
+      (await this.thunderEgg.ownerOf(EGG_ID_TWO)).should.be.equal(alice);
 
-      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(bob);
-      (await this.thunderEgg.ownerToThunderEggId(bob)).should.be.bignumber.equal(ZERO);
+      // but Alice's owner to Egg pointer at ThunderEgg #2
+      (await this.thunderEgg.ownerToThunderEggId(alice)).should.be.bignumber.equal(EGG_ID_TWO);
+      (await this.thunderEgg.ownerToThunderEggId(badActor)).should.be.bignumber.equal(ZERO);
 
-      await this.thunderEgg.transferFrom(bob, bob2, TWO, {from: bob});
-      (await this.thunderEgg.ownerOf(TWO)).should.be.equal(bob2);
-      (await this.thunderEgg.ownerToThunderEggId(bob2)).should.be.bignumber.equal(TWO);
+      // Alice owns both now via the ThunderEgg ID to Owner mapping (which is key)
+      const aliceEggOneStats = await this.thunderEgg.thunderEggStats(this.groveId, EGG_ID_ONE);
+      aliceEggOneStats._owner.should.be.equal(alice);
+
+      const aliceEggTwoStats = await this.thunderEgg.thunderEggStats(this.groveId, EGG_ID_TWO);
+      aliceEggTwoStats._owner.should.be.equal(alice);
+
+      // destroy "attached" ThunderEgg (and recoup it's value)
+      await this.thunderEgg.destroy(this.groveId, {from: alice});
+
+      (await this.lava.balanceOf(alice)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(ONE));
+      (await this.stakingToken.balanceOf(alice)).should.be.bignumber.equal(ONE_THOUSAND_TOKENS);
+
+      // the workaround to make the world right again...naughty griefers!
+      await this.thunderEgg.transferFrom(alice, alice, EGG_ID_ONE, {from: alice});
+
+      // now we can destroy our original ThunderEgg for LAVA and LP Stones
+      await this.thunderEgg.destroy(this.groveId, {from: alice});
+
+      // we have more lovely LAVA from ThunderEgg #1 and all our stake back...
+      (await this.lava.balanceOf(alice)).should.be.bignumber.equal(LAVA_PER_BLOCK.mul(new BN('5')));
+      (await this.stakingToken.balanceOf(alice)).should.be.bignumber.equal(ONE_THOUSAND_TOKENS.mul(TWO));
+
+      // bye bye ThunderEggs...
+      (await this.thunderEgg.exists(EGG_ID_ONE)).should.be.equal(false);
+      (await this.thunderEgg.exists(EGG_ID_TWO)).should.be.equal(false);
+
+      (await this.thunderEgg.totalSupply()).should.be.bignumber.equal(ZERO);
     });
 
     it('should spawn eggs when LP stones are offered to the gods', async () => {
@@ -308,8 +337,8 @@ contract('ThunderEgg', ([thor, alice, bob, bob2, carol]) => {
 
       // not allowed a second!
       await expectRevert(
-       this.thunderEgg.spawn(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice}),
-       'Thor has already blessed you with a ThunderEgg!'
+        this.thunderEgg.spawn(this.pid, new BN('100'), ethers.utils.formatBytes32String("test"), {from: alice}),
+        'Thor has already blessed you with a ThunderEgg!'
       );
 
     });
