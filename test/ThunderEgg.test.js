@@ -49,7 +49,7 @@ contract('ThunderEgg', ([thor, alice, bob, badActor, carol]) => {
     beforeEach(async () => {
       this.lava = await LavaToken.new(ZERO, thor, thor, {from: thor});
 
-      this.stakingToken = await MockERC20.new('LPToken', 'LP', ONE_THOUSAND_TOKENS.mul(new BN('5')), {from: thor});
+      this.stakingToken = await MockERC20.new('LPToken', 'LP', ONE_THOUSAND_TOKENS.mul(new BN('4')), {from: thor});
       await this.stakingToken.transfer(alice, ONE_THOUSAND_TOKENS, {from: thor});
       await this.stakingToken.transfer(bob, ONE_THOUSAND_TOKENS, {from: thor});
       await this.stakingToken.transfer(carol, ONE_THOUSAND_TOKENS, {from: thor});
